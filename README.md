@@ -1,63 +1,85 @@
-# PickleStats
+# PickleStats 🏓
 
-A modern, intuitive React application for tracking pickleball matches and player statistics in real-time.
+A modern web application for tracking pickleball matches and player statistics, featuring a Miami Vice-inspired design theme.
 
 ## Features
 
-- Interactive pickleball court visualization
-- Real-time score tracking
-- Player management system
-- Match history tracking
-- Session statistics
-- Responsive design for mobile use
+- **Match Scoring**
+  - Real-time score tracking
+  - Player selection with automatic availability updates
+  - Visual court representation
+  - Celebratory animations for shutout victories (🥒)
+
+- **Player Management**
+  - Player profiles with stats
+  - Profile picture support
+  - Win/loss tracking
+  - Points scored/conceded statistics
+
+- **Match History**
+  - Comprehensive match records
+  - Filter matches by player
+  - Detailed score breakdowns
+  - Team composition tracking
+
+- **Statistics**
+  - Player win rates
+  - Head-to-head records
+  - Common partners analysis
+  - Session statistics
 
 ## Tech Stack
 
-- Next.js 13+ with App Router
-- TypeScript for type safety
-- Tailwind CSS for styling
-- Zustand for state management
-- Framer Motion for animations
+- **Frontend**: Next.js 13.5.10
+- **Styling**: Tailwind CSS with custom gradients
+- **UI Components**: Radix UI
+- **Database**: Prisma with SQLite
+- **State Management**: Zustand
+- **Animations**: Framer Motion
 
 ## Getting Started
 
-1. Install dependencies:
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/KingJoefa/picklestats.git
+   cd picklestats
+   ```
+
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-2. Run the development server:
+3. Set up the database:
+   ```bash
+   npx prisma migrate dev
+   npx prisma db seed
+   ```
+
+4. Start the development server:
    ```bash
    npm run dev
    ```
 
-3. Open [http://localhost:3000](http://localhost:3000) in your browser.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Usage
+## Database Schema
 
-1. Click on player slots to add players to the game
-2. Use the score inputs to track points for each team
-3. Click "End Match" when a game is complete
-4. View match history and statistics in the stats panel
-
-## Development
-
-The project structure follows Next.js 13+ conventions:
-
-```
-src/
-  app/              # Next.js app router pages
-  components/       # React components
-    Court/         # Court visualization components
-    Stats/         # Statistics components
-  store/           # Zustand state management
-  types/           # TypeScript type definitions
-```
+The application uses a Prisma database with the following main models:
+- Players (name, profile picture, stats)
+- Matches (teams, scores, date)
+- Statistics (win rates, points, partnerships)
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request 
+Feel free to submit issues and enhancement requests!
+
+## License
+
+MIT License - feel free to use this project as you wish.
+
+## Acknowledgments
+
+- Inspired by the growing popularity of pickleball
+- Design influenced by Miami Vice color schemes
+- Built with modern web development best practices 
