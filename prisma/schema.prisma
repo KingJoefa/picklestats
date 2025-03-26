@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Player {
+  id             String          @id @default(cuid())
+  name           String
+  profilePicture String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  commonPartners CommonPartner[]
+  matchesTeam2B  Match[]         @relation("Team2PlayerB")
+  matchesTeam2A  Match[]         @relation("Team2PlayerA")
+  matchesTeam1B  Match[]         @relation("Team1PlayerB")
+  matchesTeam1A  Match[]         @relation("Team1PlayerA")
+  stats          PlayerStats?
+  topOpponents   TopOpponent[]
+}
+
+model PlayerStats {
+  id             String   @id @default(cuid())
+  playerId       String   @unique
+  totalMatches   Int      @default(0)
+  wins           Int      @default(0)
+  losses         Int      @default(0)
+  winRate        Float    @default(0)
+  pointsScored   Int      @default(0)
+  pointsConceded Int      @default(0)
+  updatedAt      DateTime @updatedAt
+  player         Player   @relation(fields: [playerId], references: [id])
+}
+
+model CommonPartner {
+  id             String   @id @default(cuid())
+  playerId       String
+  partnerId      String
+  partnerName    String
+  partnerPicture String
+  matches        Int      @default(0)
+  wins           Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  player         Player   @relation(fields: [playerId], references: [id])
+}
+
+model TopOpponent {
+  id              String   @id @default(cuid())
+  playerId        String
+  opponentId      String
+  opponentName    String
+  opponentPicture String
+  matches         Int      @default(0)
+  wins            Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  player          Player   @relation(fields: [playerId], references: [id])
+}
+
+model Match {
+  id             String   @id @default(cuid())
+  date           DateTime @default(now())
+  team1ScoreA    Int
+  team1ScoreB    Int
+  team2ScoreA    Int
+  team2ScoreB    Int
+  team1PlayerAId String
+  team1PlayerBId String
+  team2PlayerAId String
+  team2PlayerBId String
+  winningTeam    Int
+  createdAt      DateTime @default(now())
+  team2PlayerB   Player   @relation("Team2PlayerB", fields: [team2PlayerBId], references: [id])
+  team2PlayerA   Player   @relation("Team2PlayerA", fields: [team2PlayerAId], references: [id])
+  team1PlayerB   Player   @relation("Team1PlayerB", fields: [team1PlayerBId], references: [id])
+  team1PlayerA   Player   @relation("Team1PlayerA", fields: [team1PlayerAId], references: [id])
+}

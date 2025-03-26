@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply min-h-screen bg-gradient-to-br from-slate-50 to-slate-200;
+  }
+}
+
+@layer components {
+  .court-line {
+    stroke: white;
+    stroke-width: 3px;
+  }
+  
+  .player-slot {
+    @apply bg-white rounded-lg shadow-md p-4 bg-opacity-90 backdrop-blur-sm;
+    min-width: 140px;
+  }
+
+  .player-slot select {
+    @apply w-full p-2 border border-gray-300 rounded-md bg-white bg-opacity-90 
+    focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none
+    text-gray-700 font-medium;
+  }
+
+  .score-input {
+    @apply w-16 h-12 text-2xl text-center border-2 border-gray-300 rounded-md 
+    focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none
+    bg-white shadow-inner;
+  }
+
+  .btn-primary {
+    @apply bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 
+    transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+    shadow-md;
+  }
+} 
