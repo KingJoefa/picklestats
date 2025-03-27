@@ -78,7 +78,7 @@ const CourtView = () => {
     const winningTeam = score.team1 > score.team2 ? 1 : 2
     await endMatch(winningTeam)
     
-    if (score.team1 === 0 || score.team2 === 0) {
+    if (score.team1 === 0 && score.team2 === 0) {
       setShowPickles(true)
       setTimeout(() => setShowPickles(false), 3000)
     }
@@ -101,7 +101,9 @@ const CourtView = () => {
           <div className="space-y-4">
             <PlayerSelect team={1} position={0} />
             <PlayerSelect team={1} position={1} />
-            <ScoreInput team={1} />
+            <div className="flex justify-center">
+              <ScoreInput team={1} label="Score" />
+            </div>
           </div>
         </div>
         <div className="flex-1">
@@ -109,7 +111,9 @@ const CourtView = () => {
           <div className="space-y-4">
             <PlayerSelect team={2} position={0} />
             <PlayerSelect team={2} position={1} />
-            <ScoreInput team={2} />
+            <div className="flex justify-center">
+              <ScoreInput team={2} label="Score" />
+            </div>
           </div>
         </div>
       </div>

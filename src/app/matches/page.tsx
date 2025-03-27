@@ -220,7 +220,7 @@ export default function MatchesPage() {
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold">
-                  {match.team1ScoreA}-{match.team1ScoreB} vs {match.team2ScoreA}-{match.team2ScoreB}
+                  {match.team1ScoreA}-{match.team2ScoreA}
                 </div>
                 <div className="text-sm text-gray-600">
                   Team {match.winningTeam} Won

@@ -1,29 +1,32 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { PrismaClient, Prisma } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 export async function POST(request: Request) {
   try {
+    const data = await request.json()
     const {
-      team1PlayerAId,
-      team1PlayerBId,
-      team2PlayerAId,
-      team2PlayerBId,
+      team1PlayerA,
+      team1PlayerB,
+      team2PlayerA,
+      team2PlayerB,
       team1ScoreA,
       team1ScoreB,
       team2ScoreA,
       team2ScoreB,
       winningTeam,
-    } = await request.json()
+    } = data
 
     // Validate required fields
     if (
-      team1PlayerAId === undefined ||
-      team1PlayerBId === undefined ||
-      team2PlayerAId === undefined ||
-      team2PlayerBId === undefined ||
+      !team1PlayerA?.id ||
+      !team1PlayerB?.id ||
+      !team2PlayerA?.id ||
+      !team2PlayerB?.id ||
       team1ScoreA === undefined ||
       team1ScoreB === undefined ||
       team2ScoreA === undefined ||
@@ -36,74 +39,96 @@ export async function POST(request: Request) {
       )
     }
 
-    // Create match
-    const match = await prisma.match.create({
-      data: {
-        team1PlayerA: { connect: { id: team1PlayerAId } },
-        team1PlayerB: { connect: { id: team1PlayerBId } },
-        team2PlayerA: { connect: { id: team2PlayerAId } },
-        team2PlayerB: { connect: { id: team2PlayerBId } },
-        team1ScoreA,
-        team1ScoreB,
-        team2ScoreA,
-        team2ScoreB,
-        winningTeam,
-      },
-    })
+    const result = await prisma.$transaction(async (tx) => {
+      // Create the match
+      const match = await tx.match.create({
+        data: {
+          team1PlayerAId: team1PlayerA.id,
+          team1PlayerBId: team1PlayerB.id,
+          team2PlayerAId: team2PlayerA.id,
+          team2PlayerBId: team2PlayerB.id,
+          team1ScoreA: parseInt(team1ScoreA),
+          team1ScoreB: parseInt(team1ScoreB),
+          team2ScoreA: parseInt(team2ScoreA),
+          team2ScoreB: parseInt(team2ScoreB),
+          winningTeam,
+        },
+      })
 
-    // Update player stats
-    const team1Players = [team1PlayerAId, team1PlayerBId]
-    const team2Players = [team2PlayerAId, team2PlayerBId]
-    const winningPlayers = winningTeam === 1 ? team1Players : team2Players
-    const losingPlayers = winningTeam === 1 ? team2Players : team1Players
+      // Update stats for winning team players
+      const winningPlayers = winningTeam === 1 
+        ? [team1PlayerA.id, team1PlayerB.id]
+        : [team2PlayerA.id, team2PlayerB.id]
 
-    // Update winners
-    await Promise.all(
-      winningPlayers.map((playerId) =>
-        prisma.playerStats.upsert({
+      for (const playerId of winningPlayers) {
+        await tx.playerStats.upsert({
           where: { playerId },
           create: {
             playerId,
-            matches: 1,
+            totalMatches: 1,
             wins: 1,
             losses: 0,
             winRate: 100,
           },
           update: {
-            matches: { increment: 1 },
+            totalMatches: { increment: 1 },
             wins: { increment: 1 },
-            winRate: {
-              set: prisma.$raw`ROUND(CAST((wins + 1) AS FLOAT) / (matches + 1) * 100)`,
-            },
           },
         })
-      )
-    )
 
-    // Update losers
-    await Promise.all(
-      losingPlayers.map((playerId) =>
-        prisma.playerStats.upsert({
+        // Update win rate separately
+        const stats = await tx.playerStats.findUnique({
+          where: { playerId }
+        })
+        if (stats) {
+          await tx.playerStats.update({
+            where: { playerId },
+            data: {
+              winRate: Math.round((stats.wins / stats.totalMatches) * 100)
+            }
+          })
+        }
+      }
+
+      // Update stats for losing team players
+      const losingPlayers = winningTeam === 1
+        ? [team2PlayerA.id, team2PlayerB.id]
+        : [team1PlayerA.id, team1PlayerB.id]
+
+      for (const playerId of losingPlayers) {
+        await tx.playerStats.upsert({
           where: { playerId },
           create: {
             playerId,
-            matches: 1,
+            totalMatches: 1,
             wins: 0,
             losses: 1,
             winRate: 0,
           },
           update: {
-            matches: { increment: 1 },
+            totalMatches: { increment: 1 },
             losses: { increment: 1 },
-            winRate: {
-              set: prisma.$raw`ROUND(CAST(wins AS FLOAT) / (matches + 1) * 100)`,
-            },
           },
         })
-      )
-    )
 
-    return NextResponse.json(match)
+        // Update win rate separately
+        const stats = await tx.playerStats.findUnique({
+          where: { playerId }
+        })
+        if (stats) {
+          await tx.playerStats.update({
+            where: { playerId },
+            data: {
+              winRate: Math.round((stats.wins / stats.totalMatches) * 100)
+            }
+          })
+        }
+      }
+
+      return match
+    })
+
+    return NextResponse.json({ match: result })
   } catch (error) {
     console.error('Error creating match:', error)
     return NextResponse.json(

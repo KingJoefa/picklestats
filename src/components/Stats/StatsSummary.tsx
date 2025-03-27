@@ -27,13 +27,14 @@ const StatsSummary = () => {
               </p>
             ) : (
               matchHistory.slice(-3).map((match) => (
-                <div key={match.id} className="text-sm">
+                <div key={match.id} className="text-sm text-gray-600">
                   <p className="font-semibold">
                     {match.team1[0].name} & {match.team1[1].name} vs{' '}
                     {match.team2[0].name} & {match.team2[1].name}
                   </p>
-                  <p className="text-gray-600">
-                    Score: {match.score.team1} - {match.score.team2}
+                  <p>
+                    Date: {new Date(match.date).toLocaleDateString()}<br />
+                    Score: {match.score.team1}-{match.score.team2}
                   </p>
                 </div>
               ))

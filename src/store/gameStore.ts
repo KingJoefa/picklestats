@@ -85,10 +85,10 @@ export const useGameStore = create<GameState>((set) => ({
         team2Players[1]
       ) {
         saveMatchToDatabase({
-          team1PlayerAId: team1Players[0].id,
-          team1PlayerBId: team1Players[1].id,
-          team2PlayerAId: team2Players[0].id,
-          team2PlayerBId: team2Players[1].id,
+          team1PlayerA: team1Players[0],
+          team1PlayerB: team1Players[1],
+          team2PlayerA: team2Players[0],
+          team2PlayerB: team2Players[1],
           team1ScoreA: state.score.team1,
           team1ScoreB: 0,
           team2ScoreA: state.score.team2,
@@ -133,10 +133,10 @@ export const useGameStore = create<GameState>((set) => ({
 }))
 
 async function saveMatchToDatabase(matchData: {
-  team1PlayerAId: string
-  team1PlayerBId: string
-  team2PlayerAId: string
-  team2PlayerBId: string
+  team1PlayerA: Player
+  team1PlayerB: Player
+  team2PlayerA: Player
+  team2PlayerB: Player
   team1ScoreA: number
   team1ScoreB: number
   team2ScoreA: number

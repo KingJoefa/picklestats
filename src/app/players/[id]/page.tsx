@@ -172,15 +172,11 @@ export default function PlayerPage({ params }: { params: { id: string } }) {
                 <div className="text-lg font-medium">
                   {match.wasTeam1 ? (
                     <>
-                      Team 1: {match.team1ScoreA}-{match.team1ScoreB}
-                      <span className="text-gray-500"> vs </span>
-                      Team 2: {match.team2ScoreA}-{match.team2ScoreB}
+                      {match.team1ScoreA}-{match.team2ScoreA}
                     </>
                   ) : (
                     <>
-                      Team 1: {match.team1ScoreA}-{match.team1ScoreB}
-                      <span className="text-gray-500"> vs </span>
-                      Team 2: {match.team2ScoreA}-{match.team2ScoreB}
+                      {match.team1ScoreA}-{match.team2ScoreA}
                     </>
                   )}
                 </div>

@@ -8,7 +8,23 @@ export async function GET() {
   try {
     const players = await prisma.player.findMany({
       include: {
-        stats: true
+        stats: true,
+        matchesTeam1A: {
+          take: 5,
+          orderBy: { date: 'desc' }
+        },
+        matchesTeam1B: {
+          take: 5,
+          orderBy: { date: 'desc' }
+        },
+        matchesTeam2A: {
+          take: 5,
+          orderBy: { date: 'desc' }
+        },
+        matchesTeam2B: {
+          take: 5,
+          orderBy: { date: 'desc' }
+        }
       }
     })
 
