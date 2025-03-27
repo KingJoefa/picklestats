@@ -14,7 +14,7 @@ async function main() {
   const players = [
     {
       name: 'Larry',
-      profilePicture: 'https://picsum.photos/400/300',
+      profilePicture: 'https://ui-avatars.com/api/?name=Larry&background=random&size=200',
       stats: {
         totalMatches: 42,
         wins: 28,
@@ -26,7 +26,7 @@ async function main() {
     },
     {
       name: 'Zach',
-      profilePicture: 'https://picsum.photos/400/301',
+      profilePicture: 'https://ui-avatars.com/api/?name=Zach&background=random&size=200',
       stats: {
         totalMatches: 38,
         wins: 25,
@@ -38,7 +38,7 @@ async function main() {
     },
     {
       name: 'Dustin',
-      profilePicture: 'https://picsum.photos/400/302',
+      profilePicture: 'https://ui-avatars.com/api/?name=Dustin&background=random&size=200',
       stats: {
         totalMatches: 35,
         wins: 22,
@@ -50,7 +50,7 @@ async function main() {
     },
     {
       name: 'Phil',
-      profilePicture: 'https://picsum.photos/400/303',
+      profilePicture: 'https://ui-avatars.com/api/?name=Phil&background=random&size=200',
       stats: {
         totalMatches: 30,
         wins: 18,
@@ -62,7 +62,7 @@ async function main() {
     },
     {
       name: 'Ron',
-      profilePicture: 'https://picsum.photos/400/304',
+      profilePicture: 'https://ui-avatars.com/api/?name=Ron&background=random&size=200',
       stats: {
         totalMatches: 28,
         wins: 16,
@@ -74,7 +74,7 @@ async function main() {
     },
     {
       name: 'Paul',
-      profilePicture: 'https://picsum.photos/400/305',
+      profilePicture: 'https://ui-avatars.com/api/?name=Paul&background=random&size=200',
       stats: {
         totalMatches: 25,
         wins: 14,
@@ -103,7 +103,7 @@ async function main() {
   
   for (const player of allPlayers) {
     // Add common partners
-    const partners = allPlayers.filter(p => p.id !== player.id).slice(0, 2)
+    const partners = allPlayers.filter((p: { id: string }) => p.id !== player.id).slice(0, 2)
     for (const partner of partners) {
       await prisma.commonPartner.create({
         data: {
@@ -118,7 +118,7 @@ async function main() {
     }
 
     // Add top opponents
-    const opponents = allPlayers.filter(p => p.id !== player.id).slice(2, 4)
+    const opponents = allPlayers.filter((p: { id: string }) => p.id !== player.id).slice(2, 4)
     for (const opponent of opponents) {
       await prisma.topOpponent.create({
         data: {

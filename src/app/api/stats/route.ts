@@ -1,6 +1,22 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+interface PlayerStat {
+  id: string
+  playerId: string
+  totalMatches: number
+  wins: number
+  losses: number
+  winRate: number
+  pointsScored: number
+  pointsConceded: number
+  player: {
+    id: string
+    name: string
+    profilePicture: string
+  }
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const playerIds = searchParams.get('players')?.split(',') || []
@@ -26,6 +42,22 @@ export async function GET(request: Request) {
           player: true
         }
       })
+
+      // Format stats before returning
+      const formattedStats = stats.map((stat: PlayerStat) => ({
+        id: stat.id,
+        player: {
+          id: stat.player.id,
+          name: stat.player.name,
+          profilePicture: stat.player.profilePicture
+        },
+        totalMatches: stat.totalMatches,
+        wins: stat.wins,
+        losses: stat.losses,
+        winRate: stat.winRate,
+        pointsScored: stat.pointsScored,
+        pointsConceded: stat.pointsConceded
+      }))
 
       // Get head-to-head matches if exactly 2 players selected
       let headToHead = null
@@ -65,7 +97,7 @@ export async function GET(request: Request) {
         })
       }
 
-      return NextResponse.json({ stats, headToHead })
+      return NextResponse.json({ stats: formattedStats, headToHead })
     }
   } catch (error) {
     console.error('Error fetching stats:', error)

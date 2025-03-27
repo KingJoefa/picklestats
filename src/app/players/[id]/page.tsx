@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 const DEFAULT_AVATAR = '/players/default-avatar.svg'
 
@@ -21,12 +21,10 @@ interface PlayerDetails {
   recentMatches: Array<{
     id: string
     date: string
-    winningTeam: number
-    team1ScoreA: number
-    team1ScoreB: number
-    team2ScoreA: number
-    team2ScoreB: number
     wasTeam1: boolean
+    team1ScoreA: number
+    team2ScoreA: number
+    winningTeam: number
   }>
   commonPartners: Array<{
     player: {
@@ -45,115 +43,104 @@ interface PlayerDetails {
     }
     matches: number
     wins: number
-    losses: number
   }>
 }
 
-export default function PlayerPage({ params }: { params: { id: string } }) {
+interface PageProps {
+  params: Promise<{ id: string }>
+}
+
+export default function PlayerPage({ params }: PageProps) {
   const [player, setPlayer] = useState<PlayerDetails | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
-    const fetchPlayerDetails = async () => {
+    async function fetchPlayer() {
       try {
-        const response = await fetch(`/api/players/${params.id}`)
+        setIsLoading(true)
+        setError(null)
+        const { id } = await params
+        const response = await fetch(`/api/players/${id}`)
+        
+        if (!response.ok) {
+          if (response.status === 404) {
+            setError('Player not found')
+          } else {
+            setError('Failed to fetch player details')
+          }
+          return
+        }
+
         const data = await response.json()
         setPlayer(data)
-      } catch (error) {
-        console.error('Error fetching player details:', error)
+      } catch (err) {
+        setError('An error occurred while fetching player details')
+        console.error('Error fetching player:', err)
+      } finally {
+        setIsLoading(false)
       }
-      setLoading(false)
     }
 
-    fetchPlayerDetails()
-  }, [params.id])
+    fetchPlayer()
+  }, [params])
 
-  if (loading || !player) {
-    return <div>Loading player details...</div>
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    )
   }
 
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="text-xl text-red-600 mb-4">{error}</div>
+        <button
+          onClick={() => router.push('/players')}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Back to Players
+        </button>
+      </div>
+    )
+  }
+
+  if (!player) return null
+
   return (
-    <div className="max-w-6xl mx-auto px-4">
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <div className="flex items-center space-x-4">
-          <div className="relative w-24 h-24 rounded-full overflow-hidden">
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="flex items-center mb-8">
+          <div className="relative w-32 h-32 mr-6">
             <Image
-              src={player.profilePicture || DEFAULT_AVATAR}
+              src={player.profilePicture}
               alt={player.name}
               fill
-              className="object-cover"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = DEFAULT_AVATAR;
-              }}
+              className="rounded-full object-cover"
             />
           </div>
           <div>
-            <h1 className="text-3xl font-bold">{player.name}</h1>
-            <div className="mt-2 text-gray-600">
-              {player.stats.totalMatches} matches played
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-8">
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Statistics</h2>
-          <div className="bg-white rounded-lg shadow-md p-6">
+            <h1 className="text-3xl font-bold mb-2">{player.name}</h1>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <div className="text-gray-600">Win Rate</div>
-                <div className="text-2xl font-bold">
-                  {(player.stats.winRate * 100).toFixed(1)}%
-                </div>
+                <p className="text-gray-600">Total Matches</p>
+                <p className="text-xl font-semibold">{player.stats.totalMatches}</p>
               </div>
               <div>
-                <div className="text-gray-600">Record</div>
-                <div className="text-2xl font-bold">
-                  {player.stats.wins}-{player.stats.losses}
-                </div>
+                <p className="text-gray-600">Win Rate</p>
+                <p className="text-xl font-semibold">{player.stats.winRate}%</p>
               </div>
               <div>
-                <div className="text-gray-600">Points Scored</div>
-                <div className="text-2xl font-bold">
-                  {player.stats.pointsScored}
-                </div>
+                <p className="text-gray-600">Points Scored</p>
+                <p className="text-xl font-semibold">{player.stats.pointsScored}</p>
               </div>
               <div>
-                <div className="text-gray-600">Points Conceded</div>
-                <div className="text-2xl font-bold">
-                  {player.stats.pointsConceded}
-                </div>
+                <p className="text-gray-600">Points Conceded</p>
+                <p className="text-xl font-semibold">{player.stats.pointsConceded}</p>
               </div>
-            </div>
-          </div>
-
-          <h2 className="text-2xl font-bold mb-4 mt-8">Common Partners</h2>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="space-y-4">
-              {player.commonPartners.map(partner => (
-                <Link
-                  key={partner.player.id}
-                  href={`/players/${partner.player.id}`}
-                  className="flex items-center justify-between hover:bg-gray-50 p-2 rounded"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="relative w-10 h-10 rounded-full overflow-hidden">
-                      <Image
-                        src={partner.player.profilePicture}
-                        alt={partner.player.name}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <span>{partner.player.name}</span>
-                  </div>
-                  <div className="text-gray-600">
-                    {partner.wins}/{partner.matches} wins
-                  </div>
-                </Link>
-              ))}
             </div>
           </div>
         </div>
@@ -191,32 +178,54 @@ export default function PlayerPage({ params }: { params: { id: string } }) {
             ))}
           </div>
 
+          <h2 className="text-2xl font-bold mb-4 mt-8">Common Partners</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {player.commonPartners.map(partner => (
+              <div
+                key={partner.player.id}
+                className="bg-white rounded-lg shadow-md p-4 flex items-center"
+              >
+                <div className="relative w-16 h-16 mr-4">
+                  <Image
+                    src={partner.player.profilePicture}
+                    alt={partner.player.name}
+                    fill
+                    className="rounded-full object-cover"
+                  />
+                </div>
+                <div>
+                  <h3 className="font-semibold">{partner.player.name}</h3>
+                  <p className="text-sm text-gray-600">
+                    {partner.matches} matches, {partner.wins} wins together
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
           <h2 className="text-2xl font-bold mb-4 mt-8">Top Opponents</h2>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="space-y-4">
-              {player.topOpponents.map(opponent => (
-                <Link
-                  key={opponent.player.id}
-                  href={`/players/${opponent.player.id}`}
-                  className="flex items-center justify-between hover:bg-gray-50 p-2 rounded"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="relative w-10 h-10 rounded-full overflow-hidden">
-                      <Image
-                        src={opponent.player.profilePicture}
-                        alt={opponent.player.name}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <span>{opponent.player.name}</span>
-                  </div>
-                  <div className="text-gray-600">
-                    {opponent.wins}-{opponent.losses}
-                  </div>
-                </Link>
-              ))}
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {player.topOpponents.map(opponent => (
+              <div
+                key={opponent.player.id}
+                className="bg-white rounded-lg shadow-md p-4 flex items-center"
+              >
+                <div className="relative w-16 h-16 mr-4">
+                  <Image
+                    src={opponent.player.profilePicture}
+                    alt={opponent.player.name}
+                    fill
+                    className="rounded-full object-cover"
+                  />
+                </div>
+                <div>
+                  <h3 className="font-semibold">{opponent.player.name}</h3>
+                  <p className="text-sm text-gray-600">
+                    {opponent.matches} matches, {opponent.wins} wins against
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

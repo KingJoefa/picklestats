@@ -4,19 +4,46 @@ import { prisma } from '@/lib/prisma'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
+interface Match {
+  id: string
+  date: Date
+  winningTeam: number
+  team1ScoreA: number
+  team2ScoreA: number
+}
+
+interface Partner {
+  partnerId: string
+  partnerName: string
+  partnerPicture: string
+  matches: number
+  wins: number
+}
+
+interface Opponent {
+  opponentId: string
+  opponentName: string
+  opponentPicture: string
+  matches: number
+  wins: number
+}
+
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: Request,
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params
+    
     const player = await prisma.player.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         stats: true,
         commonPartners: true,
         topOpponents: true,
         matchesTeam1A: {
           include: {
+            team1PlayerA: true,
             team1PlayerB: true,
             team2PlayerA: true,
             team2PlayerB: true
@@ -27,6 +54,7 @@ export async function GET(
         matchesTeam1B: {
           include: {
             team1PlayerA: true,
+            team1PlayerB: true,
             team2PlayerA: true,
             team2PlayerB: true
           },
@@ -37,6 +65,7 @@ export async function GET(
           include: {
             team1PlayerA: true,
             team1PlayerB: true,
+            team2PlayerA: true,
             team2PlayerB: true
           },
           orderBy: { date: 'desc' },
@@ -46,7 +75,8 @@ export async function GET(
           include: {
             team1PlayerA: true,
             team1PlayerB: true,
-            team2PlayerA: true
+            team2PlayerA: true,
+            team2PlayerB: true
           },
           orderBy: { date: 'desc' },
           take: 5
@@ -63,61 +93,37 @@ export async function GET(
 
     // Combine all matches and sort by date
     const recentMatches = [
-      ...player.matchesTeam1A.map(match => ({
+      ...player.matchesTeam1A.map((match: Match) => ({
         id: match.id,
         date: match.date,
         winningTeam: match.winningTeam,
         team1ScoreA: match.team1ScoreA,
-        team1ScoreB: match.team1ScoreB,
         team2ScoreA: match.team2ScoreA,
-        team2ScoreB: match.team2ScoreB,
-        wasTeam1: true,
-        team1PlayerA: match.team1PlayerA,
-        team1PlayerB: match.team1PlayerB,
-        team2PlayerA: match.team2PlayerA,
-        team2PlayerB: match.team2PlayerB
+        wasTeam1: true
       })),
-      ...player.matchesTeam1B.map(match => ({
+      ...player.matchesTeam1B.map((match: Match) => ({
         id: match.id,
         date: match.date,
         winningTeam: match.winningTeam,
         team1ScoreA: match.team1ScoreA,
-        team1ScoreB: match.team1ScoreB,
         team2ScoreA: match.team2ScoreA,
-        team2ScoreB: match.team2ScoreB,
-        wasTeam1: true,
-        team1PlayerA: match.team1PlayerA,
-        team1PlayerB: match.team1PlayerB,
-        team2PlayerA: match.team2PlayerA,
-        team2PlayerB: match.team2PlayerB
+        wasTeam1: true
       })),
-      ...player.matchesTeam2A.map(match => ({
+      ...player.matchesTeam2A.map((match: Match) => ({
         id: match.id,
         date: match.date,
         winningTeam: match.winningTeam,
         team1ScoreA: match.team1ScoreA,
-        team1ScoreB: match.team1ScoreB,
         team2ScoreA: match.team2ScoreA,
-        team2ScoreB: match.team2ScoreB,
-        wasTeam1: false,
-        team1PlayerA: match.team1PlayerA,
-        team1PlayerB: match.team1PlayerB,
-        team2PlayerA: match.team2PlayerA,
-        team2PlayerB: match.team2PlayerB
+        wasTeam1: false
       })),
-      ...player.matchesTeam2B.map(match => ({
+      ...player.matchesTeam2B.map((match: Match) => ({
         id: match.id,
         date: match.date,
         winningTeam: match.winningTeam,
         team1ScoreA: match.team1ScoreA,
-        team1ScoreB: match.team1ScoreB,
         team2ScoreA: match.team2ScoreA,
-        team2ScoreB: match.team2ScoreB,
-        wasTeam1: false,
-        team1PlayerA: match.team1PlayerA,
-        team1PlayerB: match.team1PlayerB,
-        team2PlayerA: match.team2PlayerA,
-        team2PlayerB: match.team2PlayerB
+        wasTeam1: false
       }))
     ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 5)
@@ -142,7 +148,7 @@ export async function GET(
         pointsConceded: 0
       },
       recentMatches,
-      commonPartners: player.commonPartners.map(partner => ({
+      commonPartners: player.commonPartners.map((partner: Partner) => ({
         player: {
           id: partner.partnerId,
           name: partner.partnerName,
@@ -151,7 +157,7 @@ export async function GET(
         matches: partner.matches,
         wins: partner.wins
       })),
-      topOpponents: player.topOpponents.map(opponent => ({
+      topOpponents: player.topOpponents.map((opponent: Opponent) => ({
         player: {
           id: opponent.opponentId,
           name: opponent.opponentName,
@@ -165,6 +171,41 @@ export async function GET(
     console.error('Error fetching player details:', error)
     return NextResponse.json(
       { error: 'Failed to fetch player details' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PUT(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await context.params
+    const data = await request.json()
+
+    // Validate required fields
+    if (!data.name) {
+      return NextResponse.json(
+        { error: 'Name is required' },
+        { status: 400 }
+      )
+    }
+
+    // Update player
+    const updatedPlayer = await prisma.player.update({
+      where: { id },
+      data: {
+        name: data.name,
+        profilePicture: data.profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name)}&background=random&size=200`
+      }
+    })
+
+    return NextResponse.json(updatedPlayer)
+  } catch (error) {
+    console.error('Error updating player:', error)
+    return NextResponse.json(
+      { error: 'Failed to update player' },
       { status: 500 }
     )
   }

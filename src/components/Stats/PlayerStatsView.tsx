@@ -100,7 +100,7 @@ const PlayerStatsView = () => {
                   </div>
                   <div>
                     <p className="text-gray-600">Win Rate</p>
-                    <p className="font-bold">{(stat.winRate * 100).toFixed(1)}%</p>
+                    <p className="font-bold">{stat.winRate.toFixed(1)}%</p>
                   </div>
                   <div>
                     <p className="text-gray-600">Points Scored</p>

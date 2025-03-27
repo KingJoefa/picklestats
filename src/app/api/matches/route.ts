@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient, Prisma } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
+
+type TransactionClient = Omit<
+  PrismaClient,
+  '$connect' | '$disconnect' | '$on' | '$transaction' | '$use'
+>
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -39,7 +44,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: TransactionClient) => {
       // Create the match
       const match = await tx.match.create({
         data: {
@@ -60,6 +65,10 @@ export async function POST(request: Request) {
         ? [team1PlayerA.id, team1PlayerB.id]
         : [team2PlayerA.id, team2PlayerB.id]
 
+      // Calculate points for each team
+      const team1Points = parseInt(team1ScoreA) + parseInt(team1ScoreB)
+      const team2Points = parseInt(team2ScoreA) + parseInt(team2ScoreB)
+
       for (const playerId of winningPlayers) {
         await tx.playerStats.upsert({
           where: { playerId },
@@ -69,10 +78,14 @@ export async function POST(request: Request) {
             wins: 1,
             losses: 0,
             winRate: 100,
+            pointsScored: winningTeam === 1 ? team1Points : team2Points,
+            pointsConceded: winningTeam === 1 ? team2Points : team1Points
           },
           update: {
             totalMatches: { increment: 1 },
             wins: { increment: 1 },
+            pointsScored: { increment: winningTeam === 1 ? team1Points : team2Points },
+            pointsConceded: { increment: winningTeam === 1 ? team2Points : team1Points }
           },
         })
 
@@ -104,10 +117,14 @@ export async function POST(request: Request) {
             wins: 0,
             losses: 1,
             winRate: 0,
+            pointsScored: winningTeam === 1 ? team2Points : team1Points,
+            pointsConceded: winningTeam === 1 ? team1Points : team2Points
           },
           update: {
             totalMatches: { increment: 1 },
             losses: { increment: 1 },
+            pointsScored: { increment: winningTeam === 1 ? team2Points : team1Points },
+            pointsConceded: { increment: winningTeam === 1 ? team1Points : team2Points }
           },
         })
 

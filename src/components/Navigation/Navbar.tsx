@@ -37,6 +37,12 @@ const Navbar = () => {
             >
               Player Profiles
             </Link>
+            <Link
+              href="/players/manage"
+              className={`px-4 py-2 rounded-md ${isActive('/players/manage')}`}
+            >
+              Manage Players
+            </Link>
           </div>
         </div>
       </div>
