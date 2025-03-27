@@ -10,6 +10,8 @@ import ScoreInput from './ScoreInput'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 
+const DEFAULT_AVATAR = '/players/default-avatar.svg'
+
 interface PlayerAvatarProps {
   player: Player | null
   position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
@@ -18,8 +20,17 @@ interface PlayerAvatarProps {
 const PlayerAvatar = ({ player, position }: PlayerAvatarProps) => {
   if (!player) return null
   return (
-    <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm border-2 border-white flex items-center justify-center text-white font-bold">
-      {player.name.charAt(0)}
+    <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-white/30 backdrop-blur-sm">
+      <Image
+        src={player.profilePicture || DEFAULT_AVATAR}
+        alt={player.name}
+        fill
+        className="object-cover"
+        onError={(e) => {
+          const target = e.target as HTMLImageElement;
+          target.src = DEFAULT_AVATAR;
+        }}
+      />
     </div>
   )
 }
@@ -72,8 +83,13 @@ const CourtView = () => {
       setTimeout(() => setShowPickles(false), 3000)
     }
     
-    toast.success('Match submitted successfully!', {
+    toast.success('Match Accepted! 🎉', {
       description: `Final Score - Team 1: ${score.team1}, Team 2: ${score.team2}`,
+      duration: 3000,
+      className: 'bg-gradient-to-r from-pink-500 via-teal-400 to-purple-500 text-white border-none',
+      style: {
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+      }
     })
   }
 
@@ -106,12 +122,12 @@ const CourtView = () => {
             className="w-full h-full"
             style={{ filter: 'drop-shadow(0 0 15px rgba(255,255,255,0.3))' }}
           >
-            {/* Main Court Outline */}
+            {/* Main Court Outline - 2.2:1 ratio (44ft:20ft) */}
             <rect
               x="100"
-              y="50"
+              y="100"
               width="800"
-              height="400"
+              height="363"
               stroke="white"
               strokeWidth="4"
               fill="none"
@@ -119,26 +135,75 @@ const CourtView = () => {
             />
             
             {/* Net Visualization */}
-            <rect
-              x="495"
-              y="50"
-              width="10"
-              height="400"
-              fill="rgba(255,255,255,0.4)"
+            <line
+              x1="500"
+              y1="100"
+              x2="500"
+              y2="463"
+              stroke="white"
+              strokeWidth="4"
+              opacity="0.9"
+            />
+
+            {/* Kitchen Lines - 7ft from net each side */}
+            <line
+              x1="373"
+              y1="100"
+              x2="373"
+              y2="463"
+              stroke="white"
+              strokeWidth="2"
+              opacity="0.9"
+            />
+            <line
+              x1="627"
+              y1="100"
+              x2="627"
+              y2="463"
+              stroke="white"
+              strokeWidth="2"
+              opacity="0.9"
+            />
+
+            {/* Center Service Lines - horizontal T with kitchen lines */}
+            <line
+              x1="100"
+              y1="281"
+              x2="373"
+              y2="281"
+              stroke="white"
+              strokeWidth="2"
+              opacity="0.9"
+            />
+            <line
+              x1="627"
+              y1="281"
+              x2="900"
+              y2="281"
+              stroke="white"
+              strokeWidth="2"
+              opacity="0.9"
             />
           </svg>
 
           {/* Player Avatars */}
-          <div className="absolute top-[25%] left-[20%]">
+          {/* Team 1, Player 1 - Top Left */}
+          <div className="absolute top-4 left-4">
             <PlayerAvatar player={players.team1[0]} position="top-left" />
           </div>
-          <div className="absolute top-[25%] right-[20%]">
+          
+          {/* Team 2, Player 1 - Top Right */}
+          <div className="absolute top-4 right-4">
             <PlayerAvatar player={players.team2[0]} position="top-right" />
           </div>
-          <div className="absolute bottom-[25%] left-[20%]">
+          
+          {/* Team 1, Player 2 - Bottom Left */}
+          <div className="absolute bottom-4 left-4">
             <PlayerAvatar player={players.team1[1]} position="bottom-left" />
           </div>
-          <div className="absolute bottom-[25%] right-[20%]">
+          
+          {/* Team 2, Player 2 - Bottom Right */}
+          <div className="absolute bottom-4 right-4">
             <PlayerAvatar player={players.team2[1]} position="bottom-right" />
           </div>
 

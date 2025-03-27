@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 
+const DEFAULT_AVATAR = '/players/default-avatar.svg'
+
 interface PlayerDetails {
   id: string
   name: string
@@ -76,10 +78,14 @@ export default function PlayerPage({ params }: { params: { id: string } }) {
         <div className="flex items-center space-x-4">
           <div className="relative w-24 h-24 rounded-full overflow-hidden">
             <Image
-              src={player.profilePicture}
+              src={player.profilePicture || DEFAULT_AVATAR}
               alt={player.name}
               fill
               className="object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = DEFAULT_AVATAR;
+              }}
             />
           </div>
           <div>

@@ -5,6 +5,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useGameStore } from '@/store/gameStore'
 
+const DEFAULT_AVATAR = '/players/default-avatar.svg'
+
 interface Match {
   id: string
   date: string
@@ -24,22 +26,42 @@ interface PlayerLinkProps {
     id: string
     name: string
     profilePicture: string
-  }
+  } | null
 }
 
-const PlayerLink = ({ player }: PlayerLinkProps) => (
-  <Link href={`/players/${player.id}`} className="flex items-center gap-2 hover:text-blue-600">
-    <div className="relative w-8 h-8 rounded-full overflow-hidden">
-      <Image
-        src={player.profilePicture}
-        alt={player.name}
-        fill
-        className="object-cover"
-      />
+const PlayerLink = ({ player }: PlayerLinkProps) => {
+  if (!player) return (
+    <div className="flex items-center gap-2 text-gray-400 italic">
+      <div className="relative w-8 h-8 rounded-full overflow-hidden bg-gray-200">
+        <Image
+          src={DEFAULT_AVATAR}
+          alt="Player not found"
+          fill
+          className="object-cover opacity-50"
+        />
+      </div>
+      <span>Player not found</span>
     </div>
-    <span>{player.name}</span>
-  </Link>
-)
+  )
+  
+  return (
+    <Link href={`/players/${player.id}`} className="flex items-center gap-2 hover:text-blue-600">
+      <div className="relative w-8 h-8 rounded-full overflow-hidden">
+        <Image
+          src={player.profilePicture || DEFAULT_AVATAR}
+          alt={player.name}
+          fill
+          className="object-cover"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = DEFAULT_AVATAR;
+          }}
+        />
+      </div>
+      <span>{player.name}</span>
+    </Link>
+  )
+}
 
 export default function MatchesPage() {
   const availablePlayers = useGameStore(state => state.availablePlayers)
@@ -48,6 +70,7 @@ export default function MatchesPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedPlayerId, setSelectedPlayerId] = useState<string>('')
+  const [playerNotFound, setPlayerNotFound] = useState(false)
 
   useEffect(() => {
     fetchPlayers()
@@ -55,18 +78,34 @@ export default function MatchesPage() {
 
   const fetchMatches = async () => {
     setLoading(true)
+    setError(null)
+    setPlayerNotFound(false)
+    
     try {
       const url = selectedPlayerId 
         ? `/api/players/${selectedPlayerId}`
         : '/api/matches'
       const response = await fetch(url)
+      
+      if (response.status === 404) {
+        setPlayerNotFound(true)
+        setMatches([])
+        return
+      }
+      
       if (!response.ok) {
         throw new Error('Failed to fetch matches')
       }
+      
       const data = await response.json()
       
       // If we're fetching player-specific matches, we need to transform the data
       if (selectedPlayerId) {
+        if (!data.recentMatches || !Array.isArray(data.recentMatches)) {
+          setMatches([])
+          return
+        }
+        
         const transformedMatches = data.recentMatches.map((match: any) => ({
           id: match.id,
           date: match.date,
@@ -82,11 +121,15 @@ export default function MatchesPage() {
         }))
         setMatches(transformedMatches)
       } else {
+        if (!Array.isArray(data)) {
+          throw new Error('Invalid match data received')
+        }
         setMatches(data)
       }
     } catch (error) {
       console.error('Error fetching matches:', error)
-      setError('Failed to load matches')
+      setError('Failed to load matches. Please try again later.')
+      setMatches([])
     } finally {
       setLoading(false)
     }
@@ -96,20 +139,103 @@ export default function MatchesPage() {
     fetchMatches()
   }, [selectedPlayerId])
 
-  if (loading) {
-    return (
-      <div className="max-w-6xl mx-auto px-4">
-        <h1 className="text-3xl font-bold mb-6">Match History</h1>
-        <div className="text-center text-gray-600">Loading matches...</div>
-      </div>
-    )
-  }
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="text-center py-8">
+          <div className="animate-pulse">
+            <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+          </div>
+          <div className="text-gray-600 mt-4">Loading matches...</div>
+        </div>
+      )
+    }
 
-  if (error) {
+    if (error) {
+      return (
+        <div className="text-center py-8">
+          <div className="text-red-600 mb-2">{error}</div>
+          <button 
+            onClick={fetchMatches}
+            className="text-blue-600 hover:underline"
+          >
+            Try again
+          </button>
+        </div>
+      )
+    }
+
+    if (playerNotFound) {
+      return (
+        <div className="text-center py-8 bg-white rounded-lg shadow-md">
+          <div className="text-gray-600 mb-4">Player not found</div>
+          <button 
+            onClick={() => setSelectedPlayerId('')}
+            className="text-blue-600 hover:underline"
+          >
+            View all matches
+          </button>
+        </div>
+      )
+    }
+
+    if (matches.length === 0) {
+      return (
+        <div className="text-center py-8 bg-white rounded-lg shadow-md">
+          <div className="text-gray-600 mb-4">
+            {selectedPlayerId 
+              ? "This player hasn't completed any matches yet"
+              : "No matches found. Start playing to see match history!"}
+          </div>
+          {selectedPlayerId && (
+            <button 
+              onClick={() => setSelectedPlayerId('')}
+              className="text-blue-600 hover:underline"
+            >
+              View all matches
+            </button>
+          )}
+        </div>
+      )
+    }
+
     return (
-      <div className="max-w-6xl mx-auto px-4">
-        <h1 className="text-3xl font-bold mb-6">Match History</h1>
-        <div className="text-center text-red-600">{error}</div>
+      <div className="space-y-4">
+        {matches.slice(0, 10).map(match => (
+          <div
+            key={match.id}
+            className="bg-white rounded-lg shadow-md p-6"
+          >
+            <div className="text-sm text-gray-500 mb-2">
+              {new Date(match.date).toLocaleDateString()}
+            </div>
+            <div className="grid md:grid-cols-3 gap-4 items-center">
+              <div className="space-y-2">
+                <h3 className="font-semibold">Team 1</h3>
+                <div className="space-y-1">
+                  <PlayerLink player={match.team1PlayerA} />
+                  <PlayerLink player={match.team1PlayerB} />
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold">
+                  {match.team1ScoreA}-{match.team1ScoreB} vs {match.team2ScoreA}-{match.team2ScoreB}
+                </div>
+                <div className="text-sm text-gray-600">
+                  Team {match.winningTeam} Won
+                </div>
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-semibold">Team 2</h3>
+                <div className="space-y-1">
+                  <PlayerLink player={match.team2PlayerA} />
+                  <PlayerLink player={match.team2PlayerB} />
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     )
   }
@@ -133,48 +259,7 @@ export default function MatchesPage() {
           </select>
         </div>
       </div>
-      <div className="space-y-4">
-        {matches.length === 0 ? (
-          <div className="text-center text-gray-500">
-            No matches found. Start playing to see match history!
-          </div>
-        ) : (
-          matches.slice(0, 10).map(match => (
-            <div
-              key={match.id}
-              className="bg-white rounded-lg shadow-md p-6"
-            >
-              <div className="text-sm text-gray-500 mb-2">
-                {new Date(match.date).toLocaleDateString()}
-              </div>
-              <div className="grid md:grid-cols-3 gap-4 items-center">
-                <div className="space-y-2">
-                  <h3 className="font-semibold">Team 1</h3>
-                  <div className="space-y-1">
-                    <PlayerLink player={match.team1PlayerA} />
-                    <PlayerLink player={match.team1PlayerB} />
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold">
-                    {match.team1ScoreA}-{match.team1ScoreB} vs {match.team2ScoreA}-{match.team2ScoreB}
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    Team {match.winningTeam} Won
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <h3 className="font-semibold">Team 2</h3>
-                  <div className="space-y-1">
-                    <PlayerLink player={match.team2PlayerA} />
-                    <PlayerLink player={match.team2PlayerB} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+      {renderContent()}
     </div>
   )
 } 

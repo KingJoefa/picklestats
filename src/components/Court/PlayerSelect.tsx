@@ -1,10 +1,13 @@
 import { useGameStore, type Player } from '@/store/gameStore'
 import * as Select from '@radix-ui/react-select'
+import Image from 'next/image'
 
 interface PlayerSelectProps {
   team: 1 | 2
   position: 0 | 1
 }
+
+const DEFAULT_AVATAR = '/players/default-avatar.svg'
 
 const PlayerSelect = ({ team, position }: PlayerSelectProps) => {
   const { availablePlayers, players, setPlayer } = useGameStore()
@@ -32,9 +35,23 @@ const PlayerSelect = ({ team, position }: PlayerSelectProps) => {
       }}
     >
       <Select.Trigger className="w-full bg-pink-600 border-2 border-white text-white px-4 py-2 rounded flex items-center justify-between hover:bg-pink-700">
-        <Select.Value>
-          {currentPlayer?.name || `Select Player ${position + 1}`}
-        </Select.Value>
+        <div className="flex items-center gap-2">
+          <div className="relative w-8 h-8 rounded-full overflow-hidden">
+            <Image
+              src={currentPlayer?.profilePicture || DEFAULT_AVATAR}
+              alt={currentPlayer?.name || 'Select Player'}
+              fill
+              className="object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = DEFAULT_AVATAR;
+              }}
+            />
+          </div>
+          <Select.Value>
+            {currentPlayer?.name || `Select Player ${position + 1}`}
+          </Select.Value>
+        </div>
         <Select.Icon>
           <ChevronDownIcon />
         </Select.Icon>
@@ -59,7 +76,21 @@ const PlayerSelect = ({ team, position }: PlayerSelectProps) => {
                       isDisabled ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                   >
-                    <Select.ItemText>{player.name}</Select.ItemText>
+                    <div className="flex items-center gap-2">
+                      <div className="relative w-6 h-6 rounded-full overflow-hidden">
+                        <Image
+                          src={player.profilePicture || DEFAULT_AVATAR}
+                          alt={player.name}
+                          fill
+                          className="object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = DEFAULT_AVATAR;
+                          }}
+                        />
+                      </div>
+                      <Select.ItemText>{player.name}</Select.ItemText>
+                    </div>
                   </Select.Item>
                 )
               })}
