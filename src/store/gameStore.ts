@@ -113,36 +113,13 @@ export const useGameStore = create<GameState>((set) => ({
       const { data } = await response.json()
       if (Array.isArray(data)) {
         set({ availablePlayers: data })
+      } else {
+        console.error('Invalid players data format:', data)
+        set({ availablePlayers: [] })
       }
     } catch (error) {
       console.error('Error fetching players:', error)
       set({ availablePlayers: [] })
     }
   }
-}))
-
-async function saveMatchToDatabase(matchData: {
-  team1PlayerA: Player
-  team1PlayerB: Player
-  team2PlayerA: Player
-  team2PlayerB: Player
-  team1ScoreA: number
-  team1ScoreB: number
-  team2ScoreA: number
-  team2ScoreB: number
-  winningTeam: number
-}) {
-  const response = await fetch('/api/matches', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(matchData),
-  })
-
-  if (!response.ok) {
-    throw new Error('Failed to save match')
-  }
-
-  return response.json()
-} 
+})) 
