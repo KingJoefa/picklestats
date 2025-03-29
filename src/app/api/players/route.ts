@@ -8,16 +8,14 @@ const MOCK_PLAYERS = [
     name: 'Player One',
     profilePicture: 'https://picsum.photos/200',
     stats: {
-      totalMatches: 0,
+      matches: 0,
       wins: 0,
       losses: 0,
-      winRate: 0,
-      pointsScored: 0,
-      pointsConceded: 0
+      winRate: 0
     }
   }
 ]
 
 export async function GET() {
-  return successResponse({ players: MOCK_PLAYERS })
+  return successResponse({ data: MOCK_PLAYERS })
 } 

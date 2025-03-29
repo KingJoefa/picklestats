@@ -73,7 +73,7 @@ export const useGameStore = create<GameState>((set) => ({
         players: newPlayers,
       }
     }),
-  endMatch: (winningTeam) =>
+  endMatch: async (winningTeam) =>
     set((state) => {
       const team1Players = state.players.team1
       const team2Players = state.players.team2
@@ -84,20 +84,6 @@ export const useGameStore = create<GameState>((set) => ({
         team2Players[0] &&
         team2Players[1]
       ) {
-        saveMatchToDatabase({
-          team1PlayerA: team1Players[0],
-          team1PlayerB: team1Players[1],
-          team2PlayerA: team2Players[0],
-          team2PlayerB: team2Players[1],
-          team1ScoreA: state.score.team1,
-          team1ScoreB: 0,
-          team2ScoreA: state.score.team2,
-          team2ScoreB: 0,
-          winningTeam,
-        }).catch(error => {
-          console.error('Error saving match:', error)
-        })
-
         return {
           matchHistory: [
             ...state.matchHistory,
@@ -124,10 +110,13 @@ export const useGameStore = create<GameState>((set) => ({
       if (!response.ok) {
         throw new Error('Failed to fetch players')
       }
-      const players = await response.json()
-      set({ availablePlayers: players })
+      const { data } = await response.json()
+      if (Array.isArray(data)) {
+        set({ availablePlayers: data })
+      }
     } catch (error) {
       console.error('Error fetching players:', error)
+      set({ availablePlayers: [] })
     }
   }
 }))
