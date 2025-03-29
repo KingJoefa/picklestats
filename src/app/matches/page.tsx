@@ -97,16 +97,16 @@ export default function MatchesPage() {
         throw new Error('Failed to fetch matches')
       }
       
-      const data = await response.json()
+      const responseData = await response.json()
       
       // If we're fetching player-specific matches, we need to transform the data
       if (selectedPlayerId) {
-        if (!data.recentMatches || !Array.isArray(data.recentMatches)) {
+        if (!responseData.recentMatches || !Array.isArray(responseData.recentMatches)) {
           setMatches([])
           return
         }
         
-        const transformedMatches = data.recentMatches.map((match: any) => ({
+        const transformedMatches = responseData.recentMatches.map((match: any) => ({
           id: match.id,
           date: match.date,
           team1PlayerA: match.team1PlayerA,
@@ -121,6 +121,7 @@ export default function MatchesPage() {
         }))
         setMatches(transformedMatches)
       } else {
+        const { data } = responseData
         if (!Array.isArray(data)) {
           throw new Error('Invalid match data received')
         }

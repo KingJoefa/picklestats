@@ -20,5 +20,5 @@ const MOCK_MATCHES = [
 ]
 
 export async function GET() {
-  return successResponse({ matches: MOCK_MATCHES })
+  return successResponse({ data: MOCK_MATCHES })
 } 

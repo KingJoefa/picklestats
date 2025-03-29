@@ -24,10 +24,19 @@ export default function ManagePlayers() {
   const fetchPlayers = async () => {
     try {
       const response = await fetch('/api/players')
-      const data = await response.json()
-      setPlayers(data)
+      if (!response.ok) {
+        throw new Error('Failed to fetch players')
+      }
+      const { data } = await response.json()
+      if (Array.isArray(data)) {
+        setPlayers(data)
+      } else {
+        console.error('Invalid players data format:', data)
+        setPlayers([])
+      }
     } catch (error) {
       console.error('Error fetching players:', error)
+      setPlayers([])
     }
   }
 
