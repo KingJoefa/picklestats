@@ -9,31 +9,22 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const playerIds = searchParams.get('players')?.split(',').filter(Boolean) || []
 
-    // Get basic stats first
     const stats = await prisma.playerStats.findMany({
       where: playerIds.length > 0 ? {
         playerId: { in: playerIds }
       } : undefined,
-      include: {
-        player: {
-          select: {
-            id: true,
-            name: true,
-            profilePicture: true
-          }
-        }
+      select: {
+        id: true,
+        playerId: true,
+        totalMatches: true,
+        wins: true,
+        losses: true,
+        winRate: true
       },
       orderBy: { winRate: 'desc' }
     })
 
-    // Only fetch head-to-head if exactly 2 players
-    const headToHead = playerIds.length === 2 ? 
-      await getHeadToHead(playerIds[0], playerIds[1]) : null
-
-    return successResponse({
-      stats: stats.map(formatPlayerStats),
-      headToHead
-    })
+    return successResponse({ stats })
   } catch (error) {
     return errorResponse('Failed to fetch stats')
   }
