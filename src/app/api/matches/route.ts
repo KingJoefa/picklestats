@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Prisma } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const result = await prisma.$transaction(async (tx: TransactionClient) => {
+    const result = await prisma.$transaction(async (tx) => {
       // Create the match
       const match = await tx.match.create({
         data: {
