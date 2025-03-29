@@ -1,10 +1,13 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
+  extensions = [uuid_ossp(map: "uuid-ossp", schema: "extensions")]
 }
 
 model Player {
@@ -14,10 +17,10 @@ model Player {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   commonPartners CommonPartner[]
-  matchesTeam2B  Match[]         @relation("Team2PlayerB")
-  matchesTeam2A  Match[]         @relation("Team2PlayerA")
-  matchesTeam1B  Match[]         @relation("Team1PlayerB")
   matchesTeam1A  Match[]         @relation("Team1PlayerA")
+  matchesTeam1B  Match[]         @relation("Team1PlayerB")
+  matchesTeam2A  Match[]         @relation("Team2PlayerA")
+  matchesTeam2B  Match[]         @relation("Team2PlayerB")
   stats          PlayerStats?
   topOpponents   TopOpponent[]
 }
@@ -74,8 +77,8 @@ model Match {
   team2PlayerBId String
   winningTeam    Int
   createdAt      DateTime @default(now())
-  team2PlayerB   Player   @relation("Team2PlayerB", fields: [team2PlayerBId], references: [id])
-  team2PlayerA   Player   @relation("Team2PlayerA", fields: [team2PlayerAId], references: [id])
-  team1PlayerB   Player   @relation("Team1PlayerB", fields: [team1PlayerBId], references: [id])
   team1PlayerA   Player   @relation("Team1PlayerA", fields: [team1PlayerAId], references: [id])
+  team1PlayerB   Player   @relation("Team1PlayerB", fields: [team1PlayerBId], references: [id])
+  team2PlayerA   Player   @relation("Team2PlayerA", fields: [team2PlayerAId], references: [id])
+  team2PlayerB   Player   @relation("Team2PlayerB", fields: [team2PlayerBId], references: [id])
 }
