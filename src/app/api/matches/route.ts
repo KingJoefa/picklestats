@@ -1,7 +1,6 @@
-import { successResponse } from '@/lib/api-config'
+import { apiConfig, successResponse } from '@/lib/api-config'
 
-export const dynamic = 'force-dynamic'
-export const runtime = 'edge'
+export const { runtime, dynamic } = apiConfig
 
 // Mock data for build time
 const MOCK_MATCHES = [

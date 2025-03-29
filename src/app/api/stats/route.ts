@@ -1,8 +1,6 @@
-import { NextRequest } from 'next/server'
-import { successResponse } from '@/lib/api-config'
+import { apiConfig, successResponse } from '@/lib/api-config'
 
-export const dynamic = 'force-dynamic'
-export const runtime = 'edge'
+export const { runtime, dynamic } = apiConfig
 
 const MOCK_STATS = [
   {
