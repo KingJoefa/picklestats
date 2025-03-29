@@ -1,59 +1,63 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createMatch, getMatches } from '@/services/matchService'
-import { dynamic, runtime, revalidate } from './route.config'
+import { prisma } from '@/lib/prisma'
 
-export { dynamic, runtime, revalidate }
+export const runtime = 'edge'
+export const dynamic = 'force-dynamic'
 
-export async function POST(req: NextRequest) {
-  if (req.method !== 'POST') {
-    return NextResponse.json({ error: 'Method not allowed' }, { status: 405 })
-  }
-
+export async function GET() {
   try {
-    const data = await req.json()
-
-    // Validate required fields
-    if (
-      !data.team1PlayerA?.id ||
-      !data.team1PlayerB?.id ||
-      !data.team2PlayerA?.id ||
-      !data.team2PlayerB?.id ||
-      data.team1ScoreA === undefined ||
-      data.team1ScoreB === undefined ||
-      data.team2ScoreA === undefined ||
-      data.team2ScoreB === undefined ||
-      data.winningTeam === undefined
-    ) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      )
-    }
-
-    const match = await createMatch(data)
-    return NextResponse.json({ success: true, match })
+    const matches = await prisma.match.findMany({
+      take: 10,
+      orderBy: { date: 'desc' },
+      include: {
+        team1PlayerA: true,
+        team1PlayerB: true,
+        team2PlayerA: true,
+        team2PlayerB: true,
+      },
+    })
+    return NextResponse.json({ matches })
   } catch (error) {
-    console.error('Error creating match:', error)
-    return NextResponse.json(
-      { success: false, error: 'Failed to create match' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to fetch matches' }, { status: 500 })
   }
 }
 
-export async function GET(req: NextRequest) {
-  if (req.method !== 'GET') {
-    return NextResponse.json({ error: 'Method not allowed' }, { status: 405 })
-  }
-
+export async function POST(request: Request) {
   try {
-    const matches = await getMatches()
-    return NextResponse.json({ success: true, matches })
+    const data = await request.json()
+    
+    // Validate required fields
+    if (!data.team1PlayerA?.id || !data.team1PlayerB?.id || 
+        !data.team2PlayerA?.id || !data.team2PlayerB?.id || 
+        data.team1ScoreA === undefined || data.team1ScoreB === undefined ||
+        data.team2ScoreA === undefined || data.team2ScoreB === undefined ||
+        data.winningTeam === undefined) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    const match = await prisma.match.create({
+      data: {
+        team1PlayerAId: data.team1PlayerA.id,
+        team1PlayerBId: data.team1PlayerB.id,
+        team2PlayerAId: data.team2PlayerA.id,
+        team2PlayerBId: data.team2PlayerB.id,
+        team1ScoreA: parseInt(data.team1ScoreA.toString()),
+        team1ScoreB: parseInt(data.team1ScoreB.toString()),
+        team2ScoreA: parseInt(data.team2ScoreA.toString()),
+        team2ScoreB: parseInt(data.team2ScoreB.toString()),
+        winningTeam: data.winningTeam,
+        date: new Date(),
+      },
+      include: {
+        team1PlayerA: true,
+        team1PlayerB: true,
+        team2PlayerA: true,
+        team2PlayerB: true,
+      },
+    })
+
+    return NextResponse.json({ match })
   } catch (error) {
-    console.error('Error fetching matches:', error)
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch matches' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to create match' }, { status: 500 })
   }
 } 
