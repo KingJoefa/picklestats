@@ -51,6 +51,7 @@ export async function POST(request: Request) {
           team2ScoreA: parseInt(team2ScoreA),
           team2ScoreB: parseInt(team2ScoreB),
           winningTeam,
+          date: new Date(), // Explicitly set the date
         },
       })
 
@@ -153,7 +154,7 @@ export async function GET() {
   try {
     const matches = await prisma.match.findMany({
       take: 10,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { date: 'desc' }, // Use date instead of createdAt
       include: {
         team1PlayerA: true,
         team1PlayerB: true,
