@@ -3,8 +3,7 @@ import { prisma } from '@/lib/prisma'
 
 // Make route explicitly dynamic
 export const dynamic = 'force-dynamic'
-export const runtime = 'edge'
-export const preferredRegion = 'auto'
+export const revalidate = 0
 
 export async function POST(request: Request) {
   try {
