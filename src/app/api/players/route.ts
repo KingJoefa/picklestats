@@ -4,23 +4,16 @@ import { apiConfig, successResponse, errorResponse } from '@/lib/api-config'
 
 export const { runtime, dynamic } = apiConfig
 
-export async function GET() {
-  try {
-    const players = await prisma.player.findMany({
-      select: {
-        id: true,
-        name: true,
-        profilePicture: true
-      },
-      orderBy: {
-        name: 'asc'
-      }
-    })
-
-    return successResponse({ players })
-  } catch (error) {
-    return errorResponse('Failed to fetch players')
+const MOCK_PLAYERS = [
+  {
+    id: 'mock-1',
+    name: 'Mock Player',
+    profilePicture: 'https://picsum.photos/200'
   }
+]
+
+export async function GET() {
+  return successResponse({ players: MOCK_PLAYERS })
 }
 
 export async function POST(request: NextRequest) {

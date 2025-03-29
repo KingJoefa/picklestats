@@ -1,31 +1,15 @@
-import { NextRequest } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { apiConfig, successResponse, errorResponse } from '@/lib/api-config'
+import { apiConfig, successResponse } from '@/lib/api-config'
 
 export const { runtime, dynamic } = apiConfig
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const player = await prisma.player.findUnique({
-      where: { id: params.id },
-      select: {
-        id: true,
-        name: true,
-        profilePicture: true
-      }
-    })
+const MOCK_PLAYER = {
+  id: 'mock-1',
+  name: 'Mock Player',
+  profilePicture: 'https://picsum.photos/200'
+}
 
-    if (!player) {
-      return errorResponse('Player not found', 404)
-    }
-
-    return successResponse({ player })
-  } catch (error) {
-    return errorResponse('Failed to fetch player')
-  }
+export async function GET() {
+  return successResponse({ player: MOCK_PLAYER })
 }
 
 export async function PUT(
