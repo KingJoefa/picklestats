@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+export const runtime = 'edge'
 export const dynamic = 'force-dynamic'
-export const revalidate = 0
 
 interface Match {
   id: string
@@ -29,11 +29,11 @@ interface Opponent {
 }
 
 export async function GET(
-  _request: Request,
-  context: { params: Promise<{ id: string }> }
+  request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await context.params
+    const id = params.id
     
     const player = await prisma.player.findUnique({
       where: { id },
@@ -93,40 +93,21 @@ export async function GET(
 
     // Combine all matches and sort by date
     const recentMatches = [
-      ...player.matchesTeam1A.map((match: Match) => ({
-        id: match.id,
-        date: match.date,
-        winningTeam: match.winningTeam,
-        team1ScoreA: match.team1ScoreA,
-        team2ScoreA: match.team2ScoreA,
-        wasTeam1: true
-      })),
-      ...player.matchesTeam1B.map((match: Match) => ({
-        id: match.id,
-        date: match.date,
-        winningTeam: match.winningTeam,
-        team1ScoreA: match.team1ScoreA,
-        team2ScoreA: match.team2ScoreA,
-        wasTeam1: true
-      })),
-      ...player.matchesTeam2A.map((match: Match) => ({
-        id: match.id,
-        date: match.date,
-        winningTeam: match.winningTeam,
-        team1ScoreA: match.team1ScoreA,
-        team2ScoreA: match.team2ScoreA,
-        wasTeam1: false
-      })),
-      ...player.matchesTeam2B.map((match: Match) => ({
-        id: match.id,
-        date: match.date,
-        winningTeam: match.winningTeam,
-        team1ScoreA: match.team1ScoreA,
-        team2ScoreA: match.team2ScoreA,
-        wasTeam1: false
-      }))
-    ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      ...player.matchesTeam1A,
+      ...player.matchesTeam1B,
+      ...player.matchesTeam2A,
+      ...player.matchesTeam2B
+    ]
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 5)
+    .map(match => ({
+      id: match.id,
+      date: match.date,
+      winningTeam: match.winningTeam,
+      team1ScoreA: match.team1ScoreA,
+      team2ScoreA: match.team2ScoreA,
+      wasTeam1: match.team1PlayerAId === id || match.team1PlayerBId === id
+    }))
 
     return NextResponse.json({
       id: player.id,
@@ -177,14 +158,13 @@ export async function GET(
 }
 
 export async function PUT(
-  request: Request,
-  context: { params: Promise<{ id: string }> }
+  request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await context.params
+    const id = params.id
     const data = await request.json()
 
-    // Validate required fields
     if (!data.name) {
       return NextResponse.json(
         { error: 'Name is required' },
@@ -192,7 +172,6 @@ export async function PUT(
       )
     }
 
-    // Update player
     const updatedPlayer = await prisma.player.update({
       where: { id },
       data: {
