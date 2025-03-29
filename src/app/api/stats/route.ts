@@ -1,11 +1,28 @@
 import { NextRequest } from 'next/server'
-import { prisma } from '@/lib/prisma'
 import { apiConfig, successResponse, errorResponse } from '@/lib/api-config'
 
-export const { runtime, dynamic } = apiConfig
+export const dynamic = 'force-dynamic'
+export const runtime = 'edge'
+
+// Mock data for build time
+const MOCK_STATS = [
+  {
+    id: 'mock-1',
+    playerId: 'mock-player-1',
+    totalMatches: 0,
+    wins: 0,
+    losses: 0,
+    winRate: 0
+  }
+]
 
 export async function GET(request: NextRequest) {
+  if (process.env.NODE_ENV === 'production' && process.env.VERCEL_ENV === 'preview') {
+    return successResponse({ stats: MOCK_STATS })
+  }
+
   try {
+    const { prisma } = await import('@/lib/prisma')
     const searchParams = request.nextUrl.searchParams
     const playerIds = searchParams.get('players')?.split(',').filter(Boolean) || []
 

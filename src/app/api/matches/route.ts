@@ -1,12 +1,25 @@
 import { NextRequest } from 'next/server'
-import { prisma } from '@/lib/prisma'
 import { apiConfig, successResponse, errorResponse } from '@/lib/api-config'
 
-export const { runtime, dynamic } = apiConfig
+export const dynamic = 'force-dynamic'
+export const runtime = 'edge'
 
-// Simplified GET endpoint
+// Mock data for build time
+const MOCK_MATCHES = [
+  {
+    id: 'mock-1',
+    date: new Date().toISOString(),
+    winningTeam: 1
+  }
+]
+
 export async function GET() {
+  if (process.env.NODE_ENV === 'production' && process.env.VERCEL_ENV === 'preview') {
+    return successResponse({ matches: MOCK_MATCHES })
+  }
+
   try {
+    const { prisma } = await import('@/lib/prisma')
     const matches = await prisma.match.findMany({
       take: 5,
       orderBy: { date: 'desc' },
@@ -22,9 +35,9 @@ export async function GET() {
   }
 }
 
-// Simplified POST endpoint
 export async function POST(request: NextRequest) {
   try {
+    const { prisma } = await import('@/lib/prisma')
     const data = await request.json()
     
     if (!data.team1PlayerAId || !data.team1PlayerBId || !data.team2PlayerAId || !data.team2PlayerBId) {
