@@ -14,25 +14,7 @@ const MOCK_MATCHES = [
 ]
 
 export async function GET() {
-  if (process.env.NODE_ENV === 'production' && process.env.VERCEL_ENV === 'preview') {
-    return successResponse({ matches: MOCK_MATCHES })
-  }
-
-  try {
-    const { prisma } = await import('@/lib/prisma')
-    const matches = await prisma.match.findMany({
-      take: 5,
-      orderBy: { date: 'desc' },
-      select: {
-        id: true,
-        date: true,
-        winningTeam: true
-      }
-    })
-    return successResponse({ matches })
-  } catch (error) {
-    return errorResponse('Failed to fetch matches')
-  }
+  return successResponse({ matches: MOCK_MATCHES })
 }
 
 export async function POST(request: NextRequest) {
