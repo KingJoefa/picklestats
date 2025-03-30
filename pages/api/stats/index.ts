@@ -1,15 +1,22 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { PrismaClient, Match } from '@prisma/client'
 
-const prisma = new PrismaClient()
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     try {
+      const prisma = new PrismaClient({
+        datasources: {
+          db: {
+            url: process.env.DATABASE_URL + '?sslmode=require'
+          }
+        }
+      })
+
       const { players } = req.query
       const playerIds = typeof players === 'string' ? players.split(',') : []
       
       if (!playerIds.length) {
+        await prisma.$disconnect()
         return res.status(400).json({ 
           success: false, 
           error: 'Please select at least one player to view stats' 
@@ -83,6 +90,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         })
       }
       
+      await prisma.$disconnect()
+      
       return res.status(200).json({ 
         success: true,
         stats, 
@@ -93,7 +102,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.error('Error fetching stats:', error)
       return res.status(500).json({ 
         success: false, 
-        error: 'Failed to fetch player statistics' 
+        error: 'Failed to fetch player statistics',
+        details: error instanceof Error ? error.message : String(error)
       })
     }
   } else {
