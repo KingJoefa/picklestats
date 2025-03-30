@@ -1,8 +1,8 @@
 // Add a comment to specify the Prisma client engine type
 generator client {
   provider        = "prisma-client-js"
-  // This ensures compatibility with Vercel's Node.js environment
-  previewFeatures = ["postgresqlExtensions", "metrics"]
+  // Remove the metrics feature that's causing issues with Accelerate
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
