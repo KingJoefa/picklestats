@@ -69,28 +69,80 @@ const PlayerSlot = ({ player, position, onPlayerSelect }: PlayerSlotProps) => {
 const CourtView = () => {
   const { players, score, setScore, endMatch, fetchPlayers } = useGameStore()
   const [showPickles, setShowPickles] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     fetchPlayers()
   }, [fetchPlayers])
 
-  const handleSubmit = async () => {
-    const winningTeam = score.team1 > score.team2 ? 1 : 2
-    await endMatch(winningTeam)
-    
-    if (score.team1 === 0 && score.team2 === 0) {
-      setShowPickles(true)
-      setTimeout(() => setShowPickles(false), 3000)
+  const validateMatch = () => {
+    // Check if all players are selected
+    if (!players.team1[0] || !players.team1[1] || !players.team2[0] || !players.team2[1]) {
+      toast.error('Missing players', {
+        description: 'Please select all player positions to continue',
+      })
+      return false
     }
+
+    // Check if score is valid (not 0-0)
+    if (score.team1 === 0 && score.team2 === 0) {
+      toast.error('Invalid score', {
+        description: 'The score cannot be 0-0. Please enter valid scores.',
+      })
+      return false
+    }
+
+    // Check duplicate players
+    const playerIds = [
+      players.team1[0]?.id,
+      players.team1[1]?.id,
+      players.team2[0]?.id,
+      players.team2[1]?.id,
+    ]
     
-    toast.success('Match Accepted! 🎉', {
-      description: `Final Score - Team 1: ${score.team1}, Team 2: ${score.team2}`,
-      duration: 3000,
-      className: 'bg-gradient-to-r from-pink-500 via-teal-400 to-purple-500 text-white border-none',
-      style: {
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+    const uniqueIds = new Set(playerIds)
+    if (uniqueIds.size !== 4) {
+      toast.error('Duplicate players', {
+        description: 'The same player cannot be in multiple positions',
+      })
+      return false
+    }
+
+    return true
+  }
+
+  const handleSubmit = async () => {
+    if (!validateMatch()) {
+      return
+    }
+
+    setIsSubmitting(true)
+    
+    try {
+      const winningTeam = score.team1 > score.team2 ? 1 : 2
+      await endMatch(winningTeam)
+      
+      toast.success('Match Recorded! 🎉', {
+        description: `Final Score - Team ${winningTeam} wins: ${winningTeam === 1 ? score.team1 : score.team2}-${winningTeam === 1 ? score.team2 : score.team1}`,
+        duration: 3000,
+        className: 'bg-gradient-to-r from-pink-500 via-teal-400 to-purple-500 text-white border-none',
+        style: {
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        }
+      })
+      
+      if (Math.random() > 0.8) {
+        setShowPickles(true)
+        setTimeout(() => setShowPickles(false), 3000)
       }
-    })
+    } catch (error) {
+      console.error('Error submitting match:', error)
+      toast.error('Failed to submit match', {
+        description: 'There was an error saving the match. Please try again.',
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -235,9 +287,10 @@ const CourtView = () => {
 
       <Button
         onClick={handleSubmit}
+        disabled={isSubmitting}
         className="bg-gradient-to-r from-pink-500 via-teal-400 to-purple-500 hover:from-pink-600 hover:via-teal-500 hover:to-purple-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200 border-2 border-white/30 backdrop-blur-sm"
       >
-        Submit Match
+        {isSubmitting ? 'Submitting...' : 'Submit Match'}
       </Button>
 
       <style jsx>{`

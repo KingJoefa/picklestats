@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useGameStore } from '@/store/gameStore'
 import type { Player } from '@/store/gameStore'
+import { toast } from 'sonner'
 
 interface PlayerStats {
   id: string
@@ -32,15 +33,41 @@ const PlayerStatsView = () => {
 
   const fetchStats = async () => {
     setLoading(true)
+    const toastId = 'stats-loading'
+    toast.loading('Loading player stats...', { id: toastId })
+    
     try {
+      if (selectedPlayers.length === 0) {
+        toast.error('No players selected', { 
+          id: toastId,
+          description: 'Please select at least one player to view stats'
+        })
+        setLoading(false)
+        return
+      }
+      
       const response = await fetch(
         `/api/stats?players=${selectedPlayers.join(',')}`
       )
+      
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`)
+      }
+      
       const data = await response.json()
       setStats(data.stats)
       setHeadToHead(data.headToHead || [])
+      
+      toast.success('Stats loaded', { 
+        id: toastId,
+        description: `Displaying stats for ${selectedPlayers.length} player${selectedPlayers.length > 1 ? 's' : ''}`
+      })
     } catch (error) {
       console.error('Error fetching stats:', error)
+      toast.error('Failed to load stats', { 
+        id: toastId,
+        description: 'Please try again or contact support if the issue persists'
+      })
     }
     setLoading(false)
   }
@@ -50,6 +77,10 @@ const PlayerStatsView = () => {
       setSelectedPlayers(selectedPlayers.filter(id => id !== playerId))
     } else if (selectedPlayers.length < 4) {
       setSelectedPlayers([...selectedPlayers, playerId])
+    } else {
+      toast.error('Maximum players reached', {
+        description: 'You can compare up to 4 players at a time'
+      })
     }
   }
 
@@ -84,7 +115,7 @@ const PlayerStatsView = () => {
         {loading ? 'Loading...' : 'View Stats'}
       </button>
 
-      {stats.length > 0 && (
+      {stats.length > 0 ? (
         <div className="space-y-6">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {stats.map(stat => (
@@ -140,7 +171,12 @@ const PlayerStatsView = () => {
             </div>
           )}
         </div>
-      )}
+      ) : selectedPlayers.length > 0 && !loading ? (
+        <div className="bg-gray-50 p-6 rounded-lg text-center">
+          <p className="text-gray-600">No stats available for the selected players.</p>
+          <p className="text-sm mt-2">Play some matches to generate statistics!</p>
+        </div>
+      ) : null}
     </div>
   )
 }
