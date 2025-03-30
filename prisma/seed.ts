@@ -13,8 +13,8 @@ async function main() {
   // Create initial players
   const players = [
     {
-      name: 'Larry',
-      profilePicture: 'https://ui-avatars.com/api/?name=Larry&background=random&size=200',
+      name: 'Zach',
+      profilePicture: 'https://ui-avatars.com/api/?name=Zach&background=random&size=200',
       stats: {
         totalMatches: 42,
         wins: 28,
@@ -25,8 +25,8 @@ async function main() {
       }
     },
     {
-      name: 'Zach',
-      profilePicture: 'https://ui-avatars.com/api/?name=Zach&background=random&size=200',
+      name: 'Larry',
+      profilePicture: 'https://ui-avatars.com/api/?name=Larry&background=random&size=200',
       stats: {
         totalMatches: 38,
         wins: 25,
@@ -37,8 +37,8 @@ async function main() {
       }
     },
     {
-      name: 'Dustin',
-      profilePicture: 'https://ui-avatars.com/api/?name=Dustin&background=random&size=200',
+      name: 'Phil',
+      profilePicture: 'https://ui-avatars.com/api/?name=Phil&background=random&size=200',
       stats: {
         totalMatches: 35,
         wins: 22,
@@ -49,8 +49,8 @@ async function main() {
       }
     },
     {
-      name: 'Phil',
-      profilePicture: 'https://ui-avatars.com/api/?name=Phil&background=random&size=200',
+      name: 'Ron',
+      profilePicture: 'https://ui-avatars.com/api/?name=Ron&background=random&size=200',
       stats: {
         totalMatches: 30,
         wins: 18,
@@ -61,8 +61,8 @@ async function main() {
       }
     },
     {
-      name: 'Ron',
-      profilePicture: 'https://ui-avatars.com/api/?name=Ron&background=random&size=200',
+      name: 'Dustin',
+      profilePicture: 'https://ui-avatars.com/api/?name=Dustin&background=random&size=200',
       stats: {
         totalMatches: 28,
         wins: 16,
@@ -73,8 +73,8 @@ async function main() {
       }
     },
     {
-      name: 'Paul',
-      profilePicture: 'https://ui-avatars.com/api/?name=Paul&background=random&size=200',
+      name: 'Ashley',
+      profilePicture: 'https://ui-avatars.com/api/?name=Ashley&background=random&size=200',
       stats: {
         totalMatches: 25,
         wins: 14,
@@ -82,6 +82,78 @@ async function main() {
         winRate: 0.56,
         pointsScored: 750,
         pointsConceded: 780
+      }
+    },
+    {
+      name: 'Paul',
+      profilePicture: 'https://ui-avatars.com/api/?name=Paul&background=random&size=200',
+      stats: {
+        totalMatches: 24,
+        wins: 13,
+        losses: 11,
+        winRate: 0.54,
+        pointsScored: 720,
+        pointsConceded: 750
+      }
+    },
+    {
+      name: 'Cheryl',
+      profilePicture: 'https://ui-avatars.com/api/?name=Cheryl&background=random&size=200',
+      stats: {
+        totalMatches: 22,
+        wins: 12,
+        losses: 10,
+        winRate: 0.55,
+        pointsScored: 660,
+        pointsConceded: 700
+      }
+    },
+    {
+      name: 'Kevin',
+      profilePicture: 'https://ui-avatars.com/api/?name=Kevin&background=random&size=200',
+      stats: {
+        totalMatches: 20,
+        wins: 11,
+        losses: 9,
+        winRate: 0.55,
+        pointsScored: 600,
+        pointsConceded: 660
+      }
+    },
+    {
+      name: 'Josh',
+      profilePicture: 'https://ui-avatars.com/api/?name=Josh&background=random&size=200',
+      stats: {
+        totalMatches: 18,
+        wins: 9,
+        losses: 9,
+        winRate: 0.50,
+        pointsScored: 540,
+        pointsConceded: 630
+      }
+    },
+    {
+      name: 'Dan',
+      profilePicture: 'https://ui-avatars.com/api/?name=Dan&background=random&size=200',
+      stats: {
+        totalMatches: 16,
+        wins: 8,
+        losses: 8,
+        winRate: 0.50,
+        pointsScored: 480,
+        pointsConceded: 510
+      }
+    },
+    {
+      name: 'Matt',
+      profilePicture: 'https://ui-avatars.com/api/?name=Matt&background=random&size=200',
+      stats: {
+        totalMatches: 15,
+        wins: 7,
+        losses: 8,
+        winRate: 0.47,
+        pointsScored: 450,
+        pointsConceded: 480
       }
     }
   ]
