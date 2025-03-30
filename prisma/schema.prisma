@@ -1,6 +1,8 @@
+// Add a comment to specify the Prisma client engine type
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["postgresqlExtensions"]
+  // This ensures compatibility with Vercel's Node.js environment
+  previewFeatures = ["postgresqlExtensions", "metrics"]
 }
 
 datasource db {

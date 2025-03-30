@@ -16,32 +16,61 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     }
 
+    console.log('Initializing Prisma client for player creation...')
     const prisma = new PrismaClient({
       datasources: {
         db: {
           url: process.env.DATABASE_URL + '?sslmode=require'
         }
-      }
+      },
+      log: ['error', 'warn']
     })
 
-    console.log('Creating player:', { name, profilePicture })
-    
-    const player = await prisma.player.create({
-      data: {
-        name,
-        profilePicture,
-      }
-    })
+    try {
+      console.log('Creating player:', { name, profilePicture })
+      
+      const player = await prisma.player.create({
+        data: {
+          name,
+          profilePicture,
+        }
+      })
 
-    await prisma.$disconnect()
+      await prisma.$disconnect()
 
-    return res.status(201).json({
-      success: true,
-      message: 'Player created successfully',
-      player
-    })
+      return res.status(201).json({
+        success: true,
+        message: 'Player created successfully',
+        player
+      })
+    } catch (dbError) {
+      // Try to disconnect on error
+      await prisma.$disconnect().catch(() => {})
+      throw dbError // Re-throw for handling below
+    }
   } catch (error) {
     console.error('Error creating player:', error)
+    
+    // Handle Prisma specific errors with better messaging
+    if (error instanceof Error) {
+      if (error.message.includes('Prisma Client initialization')) {
+        return res.status(500).json({
+          success: false,
+          message: 'Database connection error',
+          error: 'The database connection failed during initialization. Please check your configuration.',
+          details: error.message
+        })
+      }
+      
+      if (error.message.includes('Unique constraint')) {
+        return res.status(409).json({
+          success: false,
+          message: 'Player already exists',
+          error: 'A player with this name already exists'
+        })
+      }
+    }
+    
     return res.status(500).json({
       success: false,
       message: 'Failed to create player',
