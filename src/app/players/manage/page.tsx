@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { API_PATHS } from '@/lib/api-paths'
 
 interface Player {
   id: string
@@ -23,7 +24,7 @@ export default function ManagePlayers() {
 
   const fetchPlayers = async () => {
     try {
-      const response = await fetch('/api/players')
+      const response = await fetch(API_PATHS.PLAYERS_V1)
       if (!response.ok) {
         throw new Error('Failed to fetch players')
       }
@@ -43,7 +44,7 @@ export default function ManagePlayers() {
   const handleCreatePlayer = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const response = await fetch('/api/players', {
+      const response = await fetch(API_PATHS.CREATE_PLAYER, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -69,7 +70,7 @@ export default function ManagePlayers() {
     if (!editingPlayer) return
 
     try {
-      const response = await fetch(`/api/players/${editingPlayer.id}`, {
+      const response = await fetch(`${API_PATHS.PLAYERS_V1}/${editingPlayer.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

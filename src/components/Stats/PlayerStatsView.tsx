@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useGameStore } from '@/store/gameStore'
 import type { Player } from '@/store/gameStore'
 import { toast } from 'sonner'
+import { API_PATHS } from '@/lib/api-paths'
 
 interface PlayerStats {
   id: string
@@ -32,22 +33,19 @@ const PlayerStatsView = () => {
   const [loading, setLoading] = useState(false)
 
   const fetchStats = async () => {
-    setLoading(true)
     const toastId = 'stats-loading'
-    toast.loading('Loading player stats...', { id: toastId })
+    setLoading(true)
+    toast.loading('Loading stats...', { id: toastId })
     
     try {
       if (selectedPlayers.length === 0) {
-        toast.error('No players selected', { 
-          id: toastId,
-          description: 'Please select at least one player to view stats'
-        })
+        toast.error('No players selected', { id: toastId })
         setLoading(false)
         return
       }
       
       const response = await fetch(
-        `/api/stats?players=${selectedPlayers.join(',')}`
+        `${API_PATHS.STATS_V1}?players=${selectedPlayers.join(',')}`
       )
       
       if (!response.ok) {

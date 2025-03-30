@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { toast } from 'sonner'
+import { API_PATHS } from '@/lib/api-paths'
 
 export interface Player {
   id: string
@@ -39,7 +40,7 @@ interface GameState {
   fetchPlayers: () => Promise<void>
 }
 
-export const useGameStore = create<GameState>((set) => ({
+export const useGameStore = create<GameState>((set, get) => ({
   players: {
     team1: [null, null],
     team2: [null, null],
@@ -99,7 +100,7 @@ export const useGameStore = create<GameState>((set) => ({
         winningTeam
       }
       
-      fetch('/api/matches', {
+      fetch(API_PATHS.MATCHES_V1, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(matchData)
@@ -144,7 +145,7 @@ export const useGameStore = create<GameState>((set) => ({
     try {
       toast.loading('Loading players...', { id: 'loading-players' })
       
-      const response = await fetch('/api/players')
+      const response = await fetch(API_PATHS.PLAYERS_V1)
       if (!response.ok) {
         const errorText = await response.text()
         console.error(`Failed to fetch players: ${response.status} - ${errorText}`)

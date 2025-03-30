@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useGameStore } from '@/store/gameStore'
+import { API_PATHS } from '@/lib/api-paths'
 
 const DEFAULT_AVATAR = '/players/default-avatar.svg'
 
@@ -83,8 +84,8 @@ export default function MatchesPage() {
     
     try {
       const url = selectedPlayerId 
-        ? `/api/players/${selectedPlayerId}`
-        : '/api/matches'
+        ? `${API_PATHS.PLAYERS_V1}/${selectedPlayerId}`
+        : API_PATHS.MATCHES_V1
       const response = await fetch(url)
       
       if (response.status === 404) {
