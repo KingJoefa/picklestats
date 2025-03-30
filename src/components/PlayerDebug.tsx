@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { API_PATHS } from '@/lib/api-paths'
 
 export default function PlayerDebug() {
   const [pagesData, setPagesData] = useState<any>(null)
@@ -14,17 +15,17 @@ export default function PlayerDebug() {
       
       try {
         // Test basic API functionality
-        const testResponse = await fetch('/api/test')
+        const testResponse = await fetch(API_PATHS.TEST)
         const testResult = await testResponse.json()
         setTestData(testResult)
         
-        // Try Pages Router API
-        const pagesResponse = await fetch('/api/players')
+        // Try Pages Router API (v1 path)
+        const pagesResponse = await fetch(API_PATHS.PLAYERS_V1)
         const pagesResult = await pagesResponse.json()
         setPagesData(pagesResult)
         
         // Try App Router API
-        const appResponse = await fetch('/api/players')
+        const appResponse = await fetch(API_PATHS.PLAYERS)
         const appResult = await appResponse.json()
         setAppData(appResult)
       } catch (err) {
@@ -59,20 +60,20 @@ export default function PlayerDebug() {
         </div>
         
         <div>
-          <h3 className="text-lg font-semibold mb-2">Pages Router API Response (/api/players):</h3>
+          <h3 className="text-lg font-semibold mb-2">Pages Router API Response ({API_PATHS.PLAYERS_V1}):</h3>
           <pre className="bg-gray-100 p-4 rounded overflow-auto max-h-40">
             {pagesData ? JSON.stringify(pagesData, null, 2) : 'No data'}
           </pre>
           <p className="mt-2 text-sm text-gray-600">
             {pagesData?.data?.length 
-              ? `Found ${pagesData.data.length} players in Pages Router API`
-              : 'No players found in Pages Router API'
+              ? `Found ${pagesData.data.length} players in Pages Router API (v1)`
+              : 'No players found in Pages Router API (v1)'
             }
           </p>
         </div>
         
         <div>
-          <h3 className="text-lg font-semibold mb-2">App Router API Response (/api/players):</h3>
+          <h3 className="text-lg font-semibold mb-2">App Router API Response ({API_PATHS.PLAYERS}):</h3>
           <pre className="bg-gray-100 p-4 rounded overflow-auto max-h-40">
             {appData ? JSON.stringify(appData, null, 2) : 'No data'}
           </pre>

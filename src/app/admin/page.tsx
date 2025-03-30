@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import PlayerDebug from '@/components/PlayerDebug'
+import { API_PATHS } from '@/lib/api-paths'
 
 export default function AdminPage() {
   const [isRunning, setIsRunning] = useState(false)
@@ -12,7 +13,7 @@ export default function AdminPage() {
     setResult('Attempting to seed database directly from the frontend...')
     
     try {
-      const response = await fetch('/api/admin/seed', {
+      const response = await fetch(API_PATHS.ADMIN_SEED, {
         method: 'POST'
       })
       
@@ -80,6 +81,17 @@ export default function AdminPage() {
             </pre>
           </div>
         )}
+
+        <div className="mt-6 p-4 bg-gray-50 rounded-md">
+          <h3 className="font-semibold mb-2">API Endpoints</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            <li><span className="font-mono text-sm">{API_PATHS.PLAYERS_V1}</span> - List all players (Pages Router)</li>
+            <li><span className="font-mono text-sm">{API_PATHS.PLAYERS}</span> - List all players (App Router)</li>
+            <li><span className="font-mono text-sm">{API_PATHS.MATCHES_V1}</span> - List matches (Pages Router)</li>
+            <li><span className="font-mono text-sm">{API_PATHS.STATS_V1}?players=id1,id2</span> - Compare player stats (Pages Router)</li>
+            <li><span className="font-mono text-sm">{API_PATHS.ADMIN_SEED}</span> - Seed the database</li>
+          </ul>
+        </div>
       </div>
       
       <PlayerDebug />
