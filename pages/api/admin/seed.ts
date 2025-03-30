@@ -26,48 +26,79 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
   }
 
+  console.log('Admin seed endpoint called')
+  
   // In a production environment, you'd want to add authentication here
   // This is just a basic example without proper auth
   
   try {
+    console.log('Setting up Prisma client...')
+    console.log('Database URL defined:', process.env.DATABASE_URL ? 'Yes' : 'No')
+    
     const prisma = new PrismaClient({
       datasources: {
         db: {
           url: process.env.DATABASE_URL + '?sslmode=require'
         }
-      }
+      },
+      log: ['query', 'info', 'warn', 'error'],
     })
 
     console.log('Connected to database. Starting seed operation...')
     
     // First check if we already have players
-    const existingPlayerCount = await prisma.player.count()
-    
-    if (existingPlayerCount > 0) {
+    try {
+      console.log('Checking for existing players...')
+      const existingPlayerCount = await prisma.player.count()
+      console.log(`Found ${existingPlayerCount} existing players`)
+      
+      if (existingPlayerCount > 0) {
+        await prisma.$disconnect()
+        return res.status(200).json({ 
+          success: true, 
+          message: `Database already has ${existingPlayerCount} players. No need to seed.`,
+          existingCount: existingPlayerCount
+        })
+      }
+      
+      // Create players
+      console.log('Creating players...')
+      const createdPlayers = []
+      
+      // Create players sequentially for better error handling
+      for (const player of initialPlayers) {
+        try {
+          const createdPlayer = await prisma.player.create({
+            data: player
+          })
+          createdPlayers.push(createdPlayer)
+          console.log(`Created player: ${createdPlayer.name}`)
+        } catch (playerError) {
+          console.error(`Error creating player ${player.name}:`, playerError)
+          // Continue with other players
+        }
+      }
+      
       await prisma.$disconnect()
+      
+      if (createdPlayers.length === 0) {
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to create any players',
+        })
+      }
+      
       return res.status(200).json({ 
         success: true, 
-        message: `Database already has ${existingPlayerCount} players. No need to seed.`,
-        existingCount: existingPlayerCount
+        message: `Successfully seeded database with ${createdPlayers.length} players.`,
+        players: createdPlayers.map(p => ({ id: p.id, name: p.name }))
       })
+    } catch (dbError) {
+      // Handle database operation errors
+      console.error('Database operation error:', dbError)
+      await prisma.$disconnect().catch(e => console.error('Error disconnecting:', e))
+      throw dbError // Re-throw for outer catch
     }
-    
-    // Create players
-    const createdPlayers = await Promise.all(
-      initialPlayers.map(player => 
-        prisma.player.create({
-          data: player
-        })
-      )
-    )
-    
-    await prisma.$disconnect()
-    
-    return res.status(200).json({ 
-      success: true, 
-      message: `Successfully seeded database with ${createdPlayers.length} players.`,
-      players: createdPlayers.map(p => ({ id: p.id, name: p.name }))
-    })
   } catch (error) {
     console.error('Error seeding database:', error)
     return res.status(500).json({ 

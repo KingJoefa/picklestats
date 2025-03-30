@@ -7,6 +7,23 @@ import { API_PATHS } from '@/lib/api-paths'
 export default function AdminPage() {
   const [isRunning, setIsRunning] = useState(false)
   const [result, setResult] = useState<string | null>(null)
+  const [envInfo, setEnvInfo] = useState<string>("")
+  
+  // Get environment info
+  const getEnvInfo = async () => {
+    try {
+      const response = await fetch('/api/test')
+      const data = await response.json()
+      setEnvInfo(JSON.stringify(data, null, 2))
+    } catch (error) {
+      setEnvInfo(`Error fetching environment info: ${error instanceof Error ? error.message : String(error)}`)
+    }
+  }
+  
+  // Run on component mount
+  useState(() => {
+    getEnvInfo()
+  })
   
   const runDirectSeed = async () => {
     setIsRunning(true)
@@ -17,12 +34,19 @@ export default function AdminPage() {
         method: 'POST'
       })
       
+      const responseText = await response.text()
+      
       if (!response.ok) {
-        throw new Error(`HTTP error ${response.status}`)
+        throw new Error(`HTTP error ${response.status}: ${responseText}`)
       }
       
-      const data = await response.json()
-      setResult(JSON.stringify(data, null, 2))
+      try {
+        const data = JSON.parse(responseText)
+        setResult(JSON.stringify(data, null, 2))
+      } catch (e) {
+        // If response isn't valid JSON, just show the text
+        setResult(responseText)
+      }
     } catch (error) {
       setResult(`Error: ${error instanceof Error ? error.message : String(error)}`)
     } finally {
@@ -59,11 +83,31 @@ export default function AdminPage() {
               <p>Supabase PostgreSQL</p>
             </div>
           </div>
+          
+          <div className="p-4 bg-gray-50 rounded-md">
+            <h3 className="font-semibold mb-2">Environment Information</h3>
+            <pre className="bg-gray-100 p-2 rounded text-sm overflow-auto whitespace-pre-wrap h-40">
+              {envInfo || "Loading environment information..."}
+            </pre>
+            <button 
+              onClick={getEnvInfo}
+              className="mt-2 px-3 py-1 bg-gray-200 text-gray-700 rounded-md text-sm"
+            >
+              Refresh
+            </button>
+          </div>
         </div>
       </div>
       
       <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
         <h2 className="text-2xl font-bold mb-4">Manual Database Seeding</h2>
+        
+        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+          <p className="text-blue-700">
+            The database has been seeded locally using <code>npx ts-node prisma/seed-production.ts</code>. 
+            This button is only needed if you want to re-seed the database from the web interface.
+          </p>
+        </div>
         
         <button
           onClick={runDirectSeed}
