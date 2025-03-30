@@ -1,9 +1,13 @@
-import { prisma } from '@/lib/prisma'
-import { apiConfig, successResponse, errorResponse } from '@/lib/api-config'
-import { NextRequest, NextResponse } from 'next/server'
+// This file is temporarily disabled to prevent build errors
+// The functionality is available through the Pages Router API at /api/v1/players
 
-export const { runtime, dynamic } = apiConfig
+// import { prisma } from '@/lib/prisma'
+// import { apiConfig, successResponse, errorResponse } from '@/lib/api-config'
+// import { NextRequest, NextResponse } from 'next/server'
 
+// export const { runtime, dynamic } = apiConfig
+
+/*
 export async function GET(request: NextRequest) {
   try {
     console.log('Fetching players from database...')
@@ -54,4 +58,26 @@ export async function GET(request: NextRequest) {
     
     return errorResponse(errorMessage, statusCode)
   }
+}
+*/
+
+// Using dynamic export to ensure this doesn't cause build-time errors
+export const dynamic = 'force-dynamic'
+
+// Simple response to indicate this API is temporarily disabled
+export async function GET() {
+  return new Response(
+    JSON.stringify({
+      success: false,
+      message: 'This API endpoint is temporarily disabled. Please use /api/v1/players instead.',
+      redirectTo: '/api/v1/players'
+    }),
+    {
+      status: 307,
+      headers: {
+        'Content-Type': 'application/json',
+        'Location': '/api/v1/players'
+      }
+    }
+  )
 } 
