@@ -3,6 +3,7 @@
 import CourtView from '@/components/Court/CourtView'
 import StatsSummary from '@/components/Stats/StatsSummary'
 import PlayerStatsView from '@/components/Stats/PlayerStatsView'
+import PlayerDebug from '@/components/PlayerDebug'
 import Logo from '@/components/Logo/Logo'
 
 export default function Home() {
@@ -26,6 +27,8 @@ export default function Home() {
           <h2 className="text-2xl font-bold mb-6">Session Stats</h2>
           <StatsSummary />
         </div>
+        
+        <PlayerDebug />
       </div>
     </div>
   )

@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: "postgresql://postgres.itlokdparthxnbfatnmm:Caqnuv-marpar-zepke5@aws-0-us-east-1.pooler.supabase.com:5432/postgres"
+      url: "postgresql://postgres.itlokdparthxnbfatnmm:Caqnuv-marpar-zepke5@aws-0-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require"
     },
   },
 })

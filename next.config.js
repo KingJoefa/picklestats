@@ -9,6 +9,15 @@ const nextConfig = {
       },
     ],
   },
+  // API rewrites to ensure both App Router and Pages Router APIs are accessible
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: '/api/:path*',
+      }
+    ]
+  },
   // Optimize for development
   webpack: (config, { dev }) => {
     if (dev) {
