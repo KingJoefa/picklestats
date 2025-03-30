@@ -1,10 +1,12 @@
 import { prisma } from '@/lib/prisma'
 import { apiConfig, successResponse, errorResponse } from '@/lib/api-config'
+import { NextRequest, NextResponse } from 'next/server'
 
 export const { runtime, dynamic } = apiConfig
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    console.log('Fetching players from database...')
     const players = await prisma.player.findMany({
       include: {
         stats: true
@@ -15,12 +17,14 @@ export async function GET() {
     })
     
     if (!players || players.length === 0) {
+      console.log('No players found in database.')
       return successResponse({ 
         data: [],
         message: 'No players found in database. Try running the seed script.'
       })
     }
     
+    console.log(`Found ${players.length} players.`)
     const formattedPlayers = players.map(player => ({
       id: player.id,
       name: player.name,
