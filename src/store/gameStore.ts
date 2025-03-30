@@ -73,7 +73,7 @@ export const useGameStore = create<GameState>((set) => ({
         players: newPlayers,
       }
     }),
-  endMatch: async (winningTeam) =>
+  endMatch: (winningTeam) =>
     set((state) => {
       const team1Players = state.players.team1
       const team2Players = state.players.team2
@@ -84,6 +84,29 @@ export const useGameStore = create<GameState>((set) => ({
         team2Players[0] &&
         team2Players[1]
       ) {
+        // Create the match data
+        const matchData = {
+          team1PlayerAId: team1Players[0].id,
+          team1PlayerBId: team1Players[1].id,
+          team2PlayerAId: team2Players[0].id,
+          team2PlayerBId: team2Players[1].id,
+          team1ScoreA: state.score.team1,
+          team1ScoreB: state.score.team1, // You may need to adjust scoring logic
+          team2ScoreA: state.score.team2,
+          team2ScoreB: state.score.team2, // You may need to adjust scoring logic
+          winningTeam
+        }
+        
+        // Submit match to API (as a side effect after state update)
+        fetch('/api/matches', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(matchData)
+        }).catch(error => {
+          console.error('Error submitting match:', error)
+        })
+        
+        // Update local state immediately
         return {
           matchHistory: [
             ...state.matchHistory,
@@ -108,7 +131,9 @@ export const useGameStore = create<GameState>((set) => ({
     try {
       const response = await fetch('/api/players')
       if (!response.ok) {
-        throw new Error('Failed to fetch players')
+        const errorText = await response.text()
+        console.error(`Failed to fetch players: ${response.status} - ${errorText}`)
+        throw new Error(`Failed to fetch players: ${response.status}`)
       }
       const { data } = await response.json()
       if (Array.isArray(data)) {
