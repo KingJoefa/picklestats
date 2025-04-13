@@ -1,15 +1,11 @@
-// Add a comment to specify the Prisma client engine type
 generator client {
   provider        = "prisma-client-js"
-  // Remove the metrics feature that's causing issues with Accelerate
   previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider   = "postgresql"
-  url        = env("DATABASE_URL")
-  directUrl  = env("DIRECT_URL")
-  extensions = [uuid_ossp(map: "uuid-ossp", schema: "extensions")]
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Player {
@@ -83,4 +79,12 @@ model Match {
   team1PlayerB   Player   @relation("Team1PlayerB", fields: [team1PlayerBId], references: [id])
   team2PlayerA   Player   @relation("Team2PlayerA", fields: [team2PlayerAId], references: [id])
   team2PlayerB   Player   @relation("Team2PlayerB", fields: [team2PlayerBId], references: [id])
+}
+
+model ErrorLog {
+  id        String   @id @default(cuid())
+  message   String
+  stack     String?
+  context   String
+  timestamp DateTime @default(now())
 }
