@@ -7,9 +7,9 @@
   ],
   "build": {
     "env": {
-      "PRISMA_GENERATE_DATAPROXY": "true",
+      "PRISMA_GENERATE_DATAPROXY": "false",
       "NEXT_PUBLIC_VERCEL_ENV": "production"
     }
   },
-  "buildCommand": "npm run build"
+  "buildCommand": "npx prisma generate && next build"
 } 
