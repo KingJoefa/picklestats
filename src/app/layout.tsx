@@ -23,7 +23,7 @@ export default function RootLayout({
         <main className="container mx-auto px-4 py-8">
           {children}
         </main>
-        <Toaster position="top-center" richColors offset="25%" />
+        <Toaster position="top-center" richColors offset={80} />
       </body>
     </html>
   )
