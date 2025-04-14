@@ -2,8 +2,11 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
-  // Check if we're on the add subdomain
-  if (request.headers.get('host')?.startsWith('add.')) {
+  // Get the pathname
+  const pathname = request.nextUrl.pathname
+
+  // Check if we're accessing the manage players page or on the add subdomain
+  if (pathname.startsWith('/players/manage') || request.headers.get('host')?.startsWith('add.')) {
     // Check if the user is authenticated
     const isAuthenticated = request.cookies.get('auth')
     
