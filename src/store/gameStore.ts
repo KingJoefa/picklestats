@@ -109,10 +109,6 @@ export const useGameStore = create<GameState>((set, get) => ({
         if (!response.ok) {
           throw new Error(`Server error: ${response.status}`)
         }
-        toast.success('Match recorded!', {
-          description: `Team ${winningTeam} won (${winningTeam === 1 ? state.score.team1 : state.score.team2}-${winningTeam === 1 ? state.score.team2 : state.score.team1})`,
-          duration: 3000
-        })
         return response.json()
       })
       .catch(error => {
