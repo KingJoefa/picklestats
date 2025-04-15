@@ -46,11 +46,7 @@ interface PlayerDetails {
   }>
 }
 
-interface PageProps {
-  params: Promise<{ id: string }>
-}
-
-export default function PlayerPage({ params }: PageProps) {
+export default function PlayerPage({ params }: { params: { id: string } }) {
   const [player, setPlayer] = useState<PlayerDetails | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -61,8 +57,7 @@ export default function PlayerPage({ params }: PageProps) {
       try {
         setIsLoading(true)
         setError(null)
-        const { id } = await params
-        const response = await fetch(`/api/players/${id}`)
+        const response = await fetch(`/api/players/${params.id}`)
         
         if (!response.ok) {
           if (response.status === 404) {
@@ -84,7 +79,7 @@ export default function PlayerPage({ params }: PageProps) {
     }
 
     fetchPlayer()
-  }, [params])
+  }, [params.id])
 
   if (isLoading) {
     return (
