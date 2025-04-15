@@ -127,19 +127,19 @@ export default function PlayerPage({ params }: PageProps) {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-gray-600">Total Matches</p>
-                <p className="text-xl font-semibold">{player.stats.totalMatches}</p>
+                <p className="text-xl font-semibold">{player.stats?.totalMatches ?? 0}</p>
               </div>
               <div>
                 <p className="text-gray-600">Win Rate</p>
-                <p className="text-xl font-semibold">{player.stats.winRate}%</p>
+                <p className="text-xl font-semibold">{player.stats?.winRate ?? 0}%</p>
               </div>
               <div>
                 <p className="text-gray-600">Points Scored</p>
-                <p className="text-xl font-semibold">{player.stats.pointsScored}</p>
+                <p className="text-xl font-semibold">{player.stats?.pointsScored ?? 0}</p>
               </div>
               <div>
                 <p className="text-gray-600">Points Conceded</p>
-                <p className="text-xl font-semibold">{player.stats.pointsConceded}</p>
+                <p className="text-xl font-semibold">{player.stats?.pointsConceded ?? 0}</p>
               </div>
             </div>
           </div>
