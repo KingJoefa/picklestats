@@ -116,14 +116,14 @@ export default function PlayerPage({ params }: PageProps) {
         <div className="flex items-center mb-8">
           <div className="relative w-32 h-32 mr-6">
             <Image
-              src={player.profilePicture}
-              alt={player.name}
+              src={player.profilePicture || DEFAULT_AVATAR}
+              alt={player.name || 'Unknown Player'}
               fill
               className="rounded-full object-cover"
             />
           </div>
           <div>
-            <h1 className="text-3xl font-bold mb-2">{player.name}</h1>
+            <h1 className="text-3xl font-bold mb-2">{player.name || 'Unknown Player'}</h1>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-gray-600">Total Matches</p>
@@ -148,13 +148,13 @@ export default function PlayerPage({ params }: PageProps) {
         <div>
           <h2 className="text-2xl font-bold mb-4">Recent Matches</h2>
           <div className="space-y-4">
-            {player.recentMatches.map(match => (
+            {(player.recentMatches ?? []).map(match => (
               <div
                 key={match.id}
                 className="bg-white rounded-lg shadow-md p-4"
               >
                 <div className="text-sm text-gray-500 mb-2">
-                  {new Date(match.date).toLocaleDateString()}
+                  {match.date ? new Date(match.date).toLocaleDateString() : 'Unknown Date'}
                 </div>
                 <div className="text-lg font-medium">
                   {match.wasTeam1 ? (
@@ -180,21 +180,21 @@ export default function PlayerPage({ params }: PageProps) {
 
           <h2 className="text-2xl font-bold mb-4 mt-8">Common Partners</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {player.commonPartners.map(partner => (
+            {(player.commonPartners ?? []).map(partner => (
               <div
                 key={partner.player.id}
                 className="bg-white rounded-lg shadow-md p-4 flex items-center"
               >
                 <div className="relative w-16 h-16 mr-4">
                   <Image
-                    src={partner.player.profilePicture}
-                    alt={partner.player.name}
+                    src={partner.player?.profilePicture || DEFAULT_AVATAR}
+                    alt={partner.player?.name || 'Unknown Partner'}
                     fill
                     className="rounded-full object-cover"
                   />
                 </div>
                 <div>
-                  <h3 className="font-semibold">{partner.player.name}</h3>
+                  <h3 className="font-semibold">{partner.player?.name || 'Unknown Partner'}</h3>
                   <p className="text-sm text-gray-600">
                     {partner.matches} matches, {partner.wins} wins together
                   </p>
@@ -205,21 +205,21 @@ export default function PlayerPage({ params }: PageProps) {
 
           <h2 className="text-2xl font-bold mb-4 mt-8">Top Opponents</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {player.topOpponents.map(opponent => (
+            {(player.topOpponents ?? []).map(opponent => (
               <div
                 key={opponent.player.id}
                 className="bg-white rounded-lg shadow-md p-4 flex items-center"
               >
                 <div className="relative w-16 h-16 mr-4">
                   <Image
-                    src={opponent.player.profilePicture}
-                    alt={opponent.player.name}
+                    src={opponent.player?.profilePicture || DEFAULT_AVATAR}
+                    alt={opponent.player?.name || 'Unknown Opponent'}
                     fill
                     className="rounded-full object-cover"
                   />
                 </div>
                 <div>
-                  <h3 className="font-semibold">{opponent.player.name}</h3>
+                  <h3 className="font-semibold">{opponent.player?.name || 'Unknown Opponent'}</h3>
                   <p className="text-sm text-gray-600">
                     {opponent.matches} matches, {opponent.wins} wins against
                   </p>
