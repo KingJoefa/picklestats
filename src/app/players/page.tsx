@@ -8,10 +8,12 @@ import PlayerForm from '@/components/Players/PlayerForm'
 const DEFAULT_AVATAR = '/players/default-avatar.svg'
 
 interface PlayerStats {
-  totalMatches: number
+  matches: number
   wins: number
   losses: number
   winRate: number
+  pointsScored: number
+  pointsConceded: number
 }
 
 interface Player {
@@ -74,12 +76,16 @@ export default function PlayersPage() {
                 <h2 className="text-xl font-semibold mb-2">{player.name}</h2>
                 <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
                   <div>
-                    <div>Matches: {player.stats?.totalMatches || 0}</div>
-                    <div>Win Rate: {((player.stats?.winRate || 0) * 100).toFixed(1)}%</div>
+                    <div>Matches: {player.stats?.matches ?? 0}</div>
+                    <div>Win Rate: {player.stats?.winRate?.toFixed(1) ?? '0.0'}%</div>
                   </div>
                   <div>
-                    <div>Wins: {player.stats?.wins || 0}</div>
-                    <div>Losses: {player.stats?.losses || 0}</div>
+                    <div>Wins: {player.stats?.wins ?? 0}</div>
+                    <div>Losses: {player.stats?.losses ?? 0}</div>
+                  </div>
+                  <div>
+                    <div>Points Scored: {player.stats?.pointsScored ?? 0}</div>
+                    <div>Points Conceded: {player.stats?.pointsConceded ?? 0}</div>
                   </div>
                 </div>
               </div>

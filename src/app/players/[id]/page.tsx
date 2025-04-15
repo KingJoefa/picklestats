@@ -11,39 +11,17 @@ interface PlayerDetails {
   name: string
   profilePicture: string
   stats: {
-    totalMatches: number
+    matches: number
     wins: number
     losses: number
     winRate: number
     pointsScored: number
     pointsConceded: number
+    last10Record?: string
   }
-  recentMatches: Array<{
-    id: string
-    date: string
-    wasTeam1: boolean
-    team1ScoreA: number
-    team2ScoreA: number
-    winningTeam: number
-  }>
-  commonPartners: Array<{
-    player: {
-      id: string
-      name: string
-      profilePicture: string
-    }
-    matches: number
-    wins: number
-  }>
-  topOpponents: Array<{
-    player: {
-      id: string
-      name: string
-      profilePicture: string
-    }
-    matches: number
-    wins: number
-  }>
+  recentMatches: Array<any>
+  commonPartners: Array<any>
+  topOpponents: Array<any>
 }
 
 export default function PlayerPage({ params }: { params: { id: string } }) {
@@ -168,19 +146,23 @@ export default function PlayerPage({ params }: { params: { id: string } }) {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-gray-600">Total Matches</p>
-                <p className="text-xl font-semibold">{stats.totalMatches ?? 0}</p>
+                <p className="text-xl font-semibold">{player.stats?.matches ?? 0}</p>
               </div>
               <div>
                 <p className="text-gray-600">Win Rate</p>
-                <p className="text-xl font-semibold">{stats.winRate?.toFixed(1) ?? 0}%</p>
+                <p className="text-xl font-semibold">{player.stats?.winRate?.toFixed(1) ?? 0}%</p>
               </div>
               <div>
                 <p className="text-gray-600">Points Scored</p>
-                <p className="text-xl font-semibold">{stats.pointsScored ?? 0}</p>
+                <p className="text-xl font-semibold">{player.stats?.pointsScored ?? 0}</p>
               </div>
               <div>
                 <p className="text-gray-600">Points Conceded</p>
-                <p className="text-xl font-semibold">{stats.pointsConceded ?? 0}</p>
+                <p className="text-xl font-semibold">{player.stats?.pointsConceded ?? 0}</p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-gray-600">Last 10 Record</p>
+                <p className="text-xl font-semibold">{player.stats?.last10Record ?? '0-0'}</p>
               </div>
             </div>
           </div>
