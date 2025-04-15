@@ -57,6 +57,7 @@ export default function PlayerPage({ params }: { params: { id: string } }) {
       try {
         setIsLoading(true)
         setError(null)
+        console.log('Fetching player:', `/api/players/${params.id}`)
         const response = await fetch(`/api/players/${params.id}`)
         
         if (!response.ok) {
@@ -69,7 +70,8 @@ export default function PlayerPage({ params }: { params: { id: string } }) {
         }
 
         const data = await response.json()
-        setPlayer(data)
+        console.log('API response:', data)
+        setPlayer(data.player)
       } catch (err) {
         setError('An error occurred while fetching player details')
         console.error('Error fetching player:', err)
