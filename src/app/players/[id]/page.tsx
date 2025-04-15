@@ -107,6 +107,50 @@ export default function PlayerPage({ params }: { params: { id: string } }) {
 
   if (!player) return null
 
+  // Helper to determine if player was on team 1 or 2
+  function getPlayerTeam(match: any, playerId: string) {
+    if (match.team1PlayerA?.id === playerId || match.team1PlayerB?.id === playerId) return 1;
+    if (match.team2PlayerA?.id === playerId || match.team2PlayerB?.id === playerId) return 2;
+    return null;
+  }
+
+  // Helper to get teammates and opponents
+  function getTeammatesAndOpponents(match: any, playerId: string) {
+    const team = getPlayerTeam(match, playerId);
+    let teammates = [];
+    let opponents = [];
+    if (team === 1) {
+      teammates = [match.team1PlayerA, match.team1PlayerB].filter(p => p && p.id !== playerId);
+      opponents = [match.team2PlayerA, match.team2PlayerB].filter(Boolean);
+    } else if (team === 2) {
+      teammates = [match.team2PlayerA, match.team2PlayerB].filter(p => p && p.id !== playerId);
+      opponents = [match.team1PlayerA, match.team1PlayerB].filter(Boolean);
+    }
+    return { teammates, opponents, team };
+  }
+
+  // Calculate stats if not present
+  const stats = player?.stats || (() => {
+    const matches = player?.recentMatches || [];
+    let wins = 0, losses = 0, pointsScored = 0, pointsConceded = 0;
+    matches.forEach(match => {
+      const { team } = getTeammatesAndOpponents(match, player.id);
+      if (!team) return;
+      const won = match.winningTeam === team;
+      if (won) wins++; else losses++;
+      if (team === 1) {
+        pointsScored += match.team1ScoreA;
+        pointsConceded += match.team2ScoreA;
+      } else if (team === 2) {
+        pointsScored += match.team2ScoreA;
+        pointsConceded += match.team1ScoreA;
+      }
+    });
+    const totalMatches = wins + losses;
+    const winRate = totalMatches > 0 ? (wins / totalMatches) * 100 : 0;
+    return { totalMatches, wins, losses, winRate, pointsScored, pointsConceded };
+  })();
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="bg-white rounded-lg shadow-lg p-6">
@@ -124,19 +168,19 @@ export default function PlayerPage({ params }: { params: { id: string } }) {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-gray-600">Total Matches</p>
-                <p className="text-xl font-semibold">{player.stats?.totalMatches ?? 0}</p>
+                <p className="text-xl font-semibold">{stats.totalMatches ?? 0}</p>
               </div>
               <div>
                 <p className="text-gray-600">Win Rate</p>
-                <p className="text-xl font-semibold">{player.stats?.winRate ?? 0}%</p>
+                <p className="text-xl font-semibold">{stats.winRate?.toFixed(1) ?? 0}%</p>
               </div>
               <div>
                 <p className="text-gray-600">Points Scored</p>
-                <p className="text-xl font-semibold">{player.stats?.pointsScored ?? 0}</p>
+                <p className="text-xl font-semibold">{stats.pointsScored ?? 0}</p>
               </div>
               <div>
                 <p className="text-gray-600">Points Conceded</p>
-                <p className="text-xl font-semibold">{player.stats?.pointsConceded ?? 0}</p>
+                <p className="text-xl font-semibold">{stats.pointsConceded ?? 0}</p>
               </div>
             </div>
           </div>
@@ -145,34 +189,44 @@ export default function PlayerPage({ params }: { params: { id: string } }) {
         <div>
           <h2 className="text-2xl font-bold mb-4">Recent Matches</h2>
           <div className="space-y-4">
-            {(player.recentMatches ?? []).map(match => (
-              <div
-                key={match.id}
-                className="bg-white rounded-lg shadow-md p-4"
-              >
-                <div className="text-sm text-gray-500 mb-2">
-                  {match.date ? new Date(match.date).toLocaleDateString() : 'Unknown Date'}
+            {(player.recentMatches ?? []).map(match => {
+              const { teammates, opponents, team } = getTeammatesAndOpponents(match, player.id);
+              const won = match.winningTeam === team;
+              return (
+                <div key={match.id} className="bg-white rounded-lg shadow-md p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="text-sm text-gray-500">
+                      {match.date ? new Date(match.date).toLocaleDateString() : 'Unknown Date'}
+                    </div>
+                    <div className={won ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}>
+                      {won ? 'Won' : 'Lost'}
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 items-center mb-2">
+                    <span className="font-semibold">Teammate(s):</span>
+                    {teammates.length === 0 ? <span>None</span> : teammates.map(tm => (
+                      <span key={tm.id} className="flex items-center gap-1">
+                        <Image src={tm.profilePicture || DEFAULT_AVATAR} alt={tm.name} width={24} height={24} className="rounded-full" />
+                        {tm.name}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex flex-wrap gap-2 items-center mb-2">
+                    <span className="font-semibold">Opponent(s):</span>
+                    {opponents.length === 0 ? <span>None</span> : opponents.map(op => (
+                      <span key={op.id} className="flex items-center gap-1">
+                        <Image src={op.profilePicture || DEFAULT_AVATAR} alt={op.name} width={24} height={24} className="rounded-full" />
+                        {op.name}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="text-lg font-medium">
+                    <span className="font-semibold">Score: </span>
+                    Team 1: {match.team1ScoreA ?? '-'} - Team 2: {match.team2ScoreA ?? '-'}
+                  </div>
                 </div>
-                <div className="text-lg font-medium">
-                  {match.wasTeam1 ? (
-                    <>
-                      {match.team1ScoreA}-{match.team2ScoreA}
-                    </>
-                  ) : (
-                    <>
-                      {match.team1ScoreA}-{match.team2ScoreA}
-                    </>
-                  )}
-                </div>
-                <div className="text-sm text-gray-600">
-                  {match.winningTeam === (match.wasTeam1 ? 1 : 2) ? (
-                    <span className="text-green-600">Won</span>
-                  ) : (
-                    <span className="text-red-600">Lost</span>
-                  )}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <h2 className="text-2xl font-bold mb-4 mt-8">Common Partners</h2>

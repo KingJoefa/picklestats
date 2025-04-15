@@ -58,12 +58,12 @@ export default function PlayersPage() {
               href={`/players/${player.id}`}
               className="block bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
             >
-              <div className="relative aspect-[3/4] w-full rounded-t-lg overflow-hidden flex items-center justify-center bg-gray-100">
+              <div className="relative h-48 rounded-t-lg overflow-hidden">
                 <Image
                   src={player.profilePicture || DEFAULT_AVATAR}
                   alt={player.name}
                   fill
-                  className="object-cover object-center"
+                  className="object-cover"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.src = DEFAULT_AVATAR;
