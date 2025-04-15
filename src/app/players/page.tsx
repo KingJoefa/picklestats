@@ -33,7 +33,7 @@ export default function PlayersPage() {
           throw new Error('Failed to fetch players')
         }
         const data = await res.json()
-        setPlayers(data)
+        setPlayers(data.data)
       } catch (error) {
         console.error('Error fetching players:', error)
       }
