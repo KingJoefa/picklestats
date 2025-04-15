@@ -60,17 +60,19 @@ export default function PlayersPage() {
               href={`/players/${player.id}`}
               className="block bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
             >
-              <div className="relative h-48 rounded-t-lg overflow-hidden">
-                <Image
-                  src={player.profilePicture || DEFAULT_AVATAR}
-                  alt={player.name}
-                  fill
-                  className="object-cover"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = DEFAULT_AVATAR;
-                  }}
-                />
+              <div className="flex justify-center mt-4">
+                <div className="relative w-32 h-32">
+                  <Image
+                    src={player.profilePicture || DEFAULT_AVATAR}
+                    alt={player.name}
+                    fill
+                    className="object-cover object-center rounded-full border border-gray-200"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = DEFAULT_AVATAR;
+                    }}
+                  />
+                </div>
               </div>
               <div className="p-4">
                 <h2 className="text-xl font-semibold mb-2">{player.name}</h2>
