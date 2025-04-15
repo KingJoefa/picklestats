@@ -61,7 +61,7 @@ export default function PlayersPage() {
               className="block bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
             >
               <div className="flex justify-center mt-4">
-                <div className="relative w-32 h-32">
+                <div className="relative w-32 h-32 aspect-square">
                   <Image
                     src={player.profilePicture || DEFAULT_AVATAR}
                     alt={player.name}
@@ -84,10 +84,6 @@ export default function PlayersPage() {
                   <div>
                     <div>Wins: {player.stats?.wins ?? 0}</div>
                     <div>Losses: {player.stats?.losses ?? 0}</div>
-                  </div>
-                  <div>
-                    <div>Points Scored: {player.stats?.pointsScored ?? 0}</div>
-                    <div>Points Conceded: {player.stats?.pointsConceded ?? 0}</div>
                   </div>
                 </div>
               </div>
