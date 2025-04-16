@@ -24,6 +24,7 @@ interface PlayerDetails {
   recentMatches: Array<any>
   commonPartners: Array<any>
   topOpponents: Array<any>
+  topOpponentTeams: Array<any>
 }
 
 export default function PlayerPage({ params }: { params: { id: string } }) {
@@ -260,6 +261,35 @@ export default function PlayerPage({ params }: { params: { id: string } }) {
                   <p className="text-sm text-gray-600">
                     {opponent.matches} matches, {opponent.wins} wins against
                   </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <h2 className="text-2xl font-bold mb-4 mt-8">Top Opponent Teams</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {(player.topOpponentTeams ?? []).map(teamStat => (
+              <div
+                key={teamStat.team.map((p: any) => p.id).join('-')}
+                className="bg-white rounded-lg shadow-md p-4 flex flex-col gap-2"
+              >
+                <div className="flex items-center gap-4 mb-2">
+                  {teamStat.team.map((op: any) => (
+                    <div key={op.id} className="flex items-center gap-2">
+                      <img
+                        src={op.profilePicture}
+                        alt={op.name}
+                        className="w-10 h-10 rounded-full object-cover border"
+                      />
+                      <span className="font-semibold">{op.name}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-6 text-sm">
+                  <div>Matches: <span className="font-semibold">{teamStat.matches}</span></div>
+                  <div>Wins: <span className="font-semibold">{teamStat.wins}</span></div>
+                  <div>Losses: <span className="font-semibold">{teamStat.losses}</span></div>
+                  <div>Win %: <span className="font-semibold">{teamStat.winPercentage}%</span></div>
                 </div>
               </div>
             ))}
