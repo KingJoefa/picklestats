@@ -21,9 +21,9 @@ export async function POST(request: NextRequest) {
   }
 
   if (password !== ADMIN_PASSWORD) {
-    // If form POST, redirect with error
+    // If form POST, redirect with error (303 to force GET)
     if (contentType.includes('application/x-www-form-urlencoded')) {
-      return NextResponse.redirect(new URL('/login?error=1', request.url))
+      return NextResponse.redirect(new URL('/login?error=1', request.url), 303)
     }
     // If API, return error JSON
     return errorResponse('Invalid password', 401)
@@ -37,9 +37,9 @@ export async function POST(request: NextRequest) {
     maxAge: 60 * 60 * 24 // 24 hours
   })
 
-  // If form POST, redirect to manage page
+  // If form POST, redirect to manage page (303 to force GET)
   if (contentType.includes('application/x-www-form-urlencoded')) {
-    return NextResponse.redirect(new URL('/players/manage', request.url))
+    return NextResponse.redirect(new URL('/players/manage', request.url), 303)
   }
   // If API, return success JSON
   return successResponse({ message: 'Authentication successful' })
