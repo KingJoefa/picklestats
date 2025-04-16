@@ -19,6 +19,7 @@ interface PlayerDetails {
     pointsScored: number
     pointsConceded: number
     last10Record?: string
+    streak?: string
   }
   recentMatches: Array<any>
   commonPartners: Array<any>
@@ -161,9 +162,15 @@ export default function PlayerPage({ params }: { params: { id: string } }) {
                 <p className="text-gray-600">Points Conceded</p>
                 <p className="text-xl font-semibold">{player.stats?.pointsConceded ?? 0}</p>
               </div>
-              <div className="col-span-2">
-                <p className="text-gray-600">Last 10 Record</p>
-                <p className="text-xl font-semibold">{player.stats?.last10Record ?? '0-0'}</p>
+              <div className="col-span-2 flex gap-8">
+                <div>
+                  <p className="text-gray-600">Last 10 Record</p>
+                  <p className="text-xl font-semibold">{player.stats?.last10Record ?? '0-0'}</p>
+                </div>
+                <div>
+                  <p className="text-gray-600">Streak</p>
+                  <p className="text-xl font-semibold">{player.stats?.streak ?? 'None'}</p>
+                </div>
               </div>
             </div>
           </div>
