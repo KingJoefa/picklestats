@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import PlayerLink from '@/components/Players/PlayerLink'
 
 const DEFAULT_AVATAR = '/players/default-avatar.svg'
 
@@ -172,39 +173,35 @@ export default function PlayerPage({ params }: { params: { id: string } }) {
           <h2 className="text-2xl font-bold mb-4">Recent Matches</h2>
           <div className="space-y-4">
             {(player.recentMatches ?? []).map(match => {
-              const { teammates, opponents, team } = getTeammatesAndOpponents(match, player.id);
-              const won = match.winningTeam === team;
+              const { team } = getTeammatesAndOpponents(match, player.id);
               return (
-                <div key={match.id} className="bg-white rounded-lg shadow-md p-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <div className="text-sm text-gray-500">
-                      {match.date ? new Date(match.date).toLocaleDateString() : 'Unknown Date'}
+                <div key={match.id} className="bg-white rounded-lg shadow-md p-6">
+                  <div className="text-sm text-gray-500 mb-2">
+                    {match.date ? new Date(match.date).toLocaleDateString() : 'Unknown Date'}
+                  </div>
+                  <div className="grid md:grid-cols-3 gap-4 items-center">
+                    <div className="space-y-2">
+                      <h3 className="font-semibold">Team 1</h3>
+                      <div className="space-y-1">
+                        <PlayerLink player={match.team1PlayerA} />
+                        <PlayerLink player={match.team1PlayerB} />
+                      </div>
                     </div>
-                    <div className={won ? 'text-green-600 font-bold' : 'text-red-600 font-bold'}>
-                      {won ? 'Won' : 'Lost'}
+                    <div className="text-center">
+                      <div className="text-2xl font-bold">
+                        {match.team1ScoreA}-{match.team2ScoreA}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Team {match.winningTeam} Won
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex flex-wrap gap-2 items-center mb-2">
-                    <span className="font-semibold">Teammate(s):</span>
-                    {teammates.length === 0 ? <span>None</span> : teammates.map(tm => (
-                      <span key={tm.id} className="flex items-center gap-1">
-                        <Image src={tm.profilePicture || DEFAULT_AVATAR} alt={tm.name} width={24} height={24} className="rounded-full" />
-                        {tm.name}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex flex-wrap gap-2 items-center mb-2">
-                    <span className="font-semibold">Opponent(s):</span>
-                    {opponents.length === 0 ? <span>None</span> : opponents.map(op => (
-                      <span key={op.id} className="flex items-center gap-1">
-                        <Image src={op.profilePicture || DEFAULT_AVATAR} alt={op.name} width={24} height={24} className="rounded-full" />
-                        {op.name}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="text-lg font-medium">
-                    <span className="font-semibold">Score: </span>
-                    Team 1: {match.team1ScoreA ?? '-'} - Team 2: {match.team2ScoreA ?? '-'}
+                    <div className="space-y-2">
+                      <h3 className="font-semibold">Team 2</h3>
+                      <div className="space-y-1">
+                        <PlayerLink player={match.team2PlayerA} />
+                        <PlayerLink player={match.team2PlayerB} />
+                      </div>
+                    </div>
                   </div>
                 </div>
               );
