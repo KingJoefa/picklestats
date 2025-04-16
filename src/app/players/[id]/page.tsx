@@ -289,7 +289,7 @@ export default function PlayerPage({ params }: { params: { id: string } }) {
                   <div>Matches: <span className="font-semibold">{teamStat.matches}</span></div>
                   <div>Wins: <span className="font-semibold">{teamStat.wins}</span></div>
                   <div>Losses: <span className="font-semibold">{teamStat.losses}</span></div>
-                  <div>Win %: <span className="font-semibold">{teamStat.winPercentage}%</span></div>
+                  <div>Win Pct: <span className="font-semibold">{teamStat.winPercentage}%</span></div>
                 </div>
               </div>
             ))}
