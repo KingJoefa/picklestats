@@ -66,49 +66,8 @@ const PlayerSlot = ({ player, position, onPlayerSelect }: PlayerSlotProps) => {
   )
 }
 
-const getTeamKey = (team: [any, any]) => {
-  // Sort by player id to avoid duplicate teams with reversed order
-  return [team[0]?.id, team[1]?.id].sort().join('-')
-}
-
-const getLongestStreaks = (matchHistory: any[]) => {
-  // Map: teamKey -> { players, currentStreak, maxStreak }
-  const streaks: Record<string, { players: [any, any], current: number, max: number }> = {}
-  let lastWinners: string | null = null
-  let currentStreakTeam: string | null = null
-  let currentStreak = 0
-
-  matchHistory.forEach(match => {
-    const winnerKey = getTeamKey(match.team1)
-    const loserKey = getTeamKey(match.team2)
-    const winningTeam = match.score.team1 > match.score.team2 ? 1 : 2
-    const teamKey = winningTeam === 1 ? winnerKey : loserKey
-    const players = winningTeam === 1 ? match.team1 : match.team2
-
-    if (!streaks[teamKey]) {
-      streaks[teamKey] = { players, current: 0, max: 0 }
-    }
-
-    if (currentStreakTeam === teamKey) {
-      currentStreak++
-    } else {
-      currentStreakTeam = teamKey
-      currentStreak = 1
-    }
-    streaks[teamKey].current = currentStreak
-    if (currentStreak > streaks[teamKey].max) {
-      streaks[teamKey].max = currentStreak
-    }
-  })
-
-  // Get top 2 teams by max streak
-  return Object.values(streaks)
-    .sort((a, b) => b.max - a.max)
-    .slice(0, 2)
-}
-
 const CourtView = () => {
-  const { players, score, setScore, endMatch, fetchPlayers, matchHistory } = useGameStore()
+  const { players, score, setScore, endMatch, fetchPlayers } = useGameStore()
   const [showPickles, setShowPickles] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -187,7 +146,7 @@ const CourtView = () => {
   }
 
   return (
-    <div className="flex flex-col items-center w-full">
+    <div className="flex flex-col items-center gap-6 p-4 bg-gradient-to-br from-pink-500 via-teal-400 to-purple-500 rounded-lg">
       <div className="flex flex-col md:flex-row gap-8 w-full max-w-4xl">
         <div className="flex-1">
           <h2 className="text-xl font-bold mb-4 text-white drop-shadow-lg">Team 1</h2>
@@ -333,38 +292,6 @@ const CourtView = () => {
       >
         {isSubmitting ? 'Submitting...' : 'Submit Match'}
       </Button>
-
-      {/* Longest Streak Section */}
-      <div className="w-full max-w-2xl mt-8">
-        <div className="bg-gradient-to-r from-yellow-200 via-green-200 to-yellow-100 border-4 border-pink-400 rounded-2xl shadow-xl flex flex-col items-center py-6 px-4" style={{ minHeight: 120 }}>
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-2xl">🥒</span>
-            <h2 className="text-2xl font-bold text-pink-700 tracking-wide">Longest Streak</h2>
-            <span className="text-2xl">🏆</span>
-          </div>
-          <div className="flex flex-col md:flex-row gap-6 w-full justify-center">
-            {getLongestStreaks(matchHistory).map((team, idx) => (
-              <div key={idx} className="flex-1 flex flex-col items-center bg-white/80 rounded-xl p-4 shadow border-2 border-green-300">
-                <div className="flex items-center gap-4 mb-2">
-                  {team.players.map((p: any) => (
-                    <div key={p.id} className="flex flex-col items-center">
-                      <Image src={p.profilePicture} alt={p.name} width={48} height={48} className="rounded-full border-2 border-pink-400" />
-                      <span className="text-sm font-semibold mt-1">{p.name}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="text-lg font-bold text-green-700">{team.max} Wins</span>
-                  <span className="text-2xl">🔥</span>
-                </div>
-              </div>
-            ))}
-            {getLongestStreaks(matchHistory).length === 0 && (
-              <div className="text-gray-500 italic">No streaks yet. Play some matches!</div>
-            )}
-          </div>
-        </div>
-      </div>
 
       <style jsx>{`
         @keyframes pickle-fly {
