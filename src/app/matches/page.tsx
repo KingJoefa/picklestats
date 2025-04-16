@@ -179,15 +179,15 @@ export default function MatchesPage() {
             <div className="text-sm text-gray-500 mb-2">
               {new Date(match.date).toLocaleDateString()}
             </div>
-            <div className="grid md:grid-cols-3 gap-4 items-center">
-              <div className="space-y-2">
+            <div className="grid md:grid-cols-3 gap-4 items-center justify-items-center">
+              <div className="space-y-2 justify-self-end w-full">
                 <h3 className="font-semibold">Team 1</h3>
                 <div className="space-y-1">
                   <PlayerLink player={match.team1PlayerA} />
                   <PlayerLink player={match.team1PlayerB} />
                 </div>
               </div>
-              <div className="text-center">
+              <div className="text-center w-full flex flex-col items-center">
                 <div className="text-2xl font-bold">
                   {match.team1ScoreA}-{match.team2ScoreA}
                 </div>
@@ -195,7 +195,7 @@ export default function MatchesPage() {
                   Team {match.winningTeam} Won
                 </div>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 justify-self-start w-full">
                 <h3 className="font-semibold">Team 2</h3>
                 <div className="space-y-1">
                   <PlayerLink player={match.team2PlayerA} />
