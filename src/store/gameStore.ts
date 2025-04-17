@@ -38,6 +38,7 @@ interface GameState {
   setPlayer: (team: 1 | 2, position: 0 | 1, playerId: string | null) => void
   endMatch: (winningTeam: 1 | 2) => void
   fetchPlayers: () => Promise<void>
+  fetchMatches: () => Promise<void>
 }
 
 export const useGameStore = create<GameState>((set, get) => ({
@@ -171,6 +172,40 @@ export const useGameStore = create<GameState>((set, get) => ({
         description: 'Please refresh the page to try again'
       })
       set({ availablePlayers: [] })
+    }
+  },
+  fetchMatches: async () => {
+    try {
+      toast.loading('Loading matches...', { id: 'loading-matches' })
+      const response = await fetch(API_PATHS.MATCHES_V1)
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error(`Failed to fetch matches: ${response.status} - ${errorText}`)
+        toast.error('Could not load matches', {
+          id: 'loading-matches',
+          description: 'Please check your connection and try again'
+        })
+        throw new Error(`Failed to fetch matches: ${response.status}`)
+      }
+      const { data } = await response.json()
+      if (Array.isArray(data)) {
+        set({ matchHistory: data })
+        toast.success('Matches loaded', { id: 'loading-matches' })
+      } else {
+        console.error('Invalid matches data format:', data)
+        toast.error('Data format error', {
+          id: 'loading-matches',
+          description: 'Please contact support if this issue persists'
+        })
+        set({ matchHistory: [] })
+      }
+    } catch (error) {
+      console.error('Error fetching matches:', error)
+      toast.error('Error loading matches', {
+        id: 'loading-matches',
+        description: 'Please refresh the page to try again'
+      })
+      set({ matchHistory: [] })
     }
   }
 })) 

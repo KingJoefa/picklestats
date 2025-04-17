@@ -4,8 +4,16 @@ import CourtView from '@/components/Court/CourtView'
 import StatsSummary from '@/components/Stats/StatsSummary'
 import PlayerDebug from '@/components/PlayerDebug'
 import Logo from '@/components/Logo/Logo'
+import { useEffect } from 'react'
+import { useGameStore } from '@/store/gameStore'
 
 export default function Home() {
+  const fetchMatches = useGameStore(state => state.fetchMatches)
+
+  useEffect(() => {
+    fetchMatches()
+  }, [fetchMatches])
+
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
       <div className="flex justify-center mb-8">
