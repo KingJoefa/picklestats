@@ -13,9 +13,12 @@ const CARD_LABELS = [
   '🥉 3rd Longest Streak'
 ]
 const CARD_ICONS = [
-  <span key="fire" className="text-4xl animate-pulse-glow">🔥</span>,
-  <span key="fire" className="text-3xl animate-pulse-glow">🔥</span>,
-  <span key="fire" className="text-2xl animate-pulse-glow">🔥</span>
+  // Gold: two same-size fire emojis
+  [<span key="fire-left" className="text-4xl animate-pulse-glow">🔥</span>, <span key="fire-right" className="text-4xl animate-pulse-glow">🔥</span>],
+  // Silver: two rocket ships
+  [<span key="rocket-left" className="text-3xl animate-pulse-glow">🚀</span>, <span key="rocket-right" className="text-3xl animate-pulse-glow">🚀</span>],
+  // Bronze: two party poppers
+  [<span key="party-left" className="text-3xl animate-pulse-glow">🎉</span>, <span key="party-right" className="text-3xl animate-pulse-glow">🎉</span>],
 ]
 
 export default function TeamStreaks() {
@@ -43,7 +46,7 @@ export default function TeamStreaks() {
 
   return (
     <div className="w-full flex flex-col items-center justify-center min-h-[32rem]">
-      <h2 className="text-3xl md:text-4xl font-extrabold mb-8 font-[Montserrat,Arial,sans-serif] tracking-tight text-center">Top 3 Current Team Streaks</h2>
+      <h2 className="text-3xl md:text-4xl font-extrabold mb-8 font-[Montserrat,Arial,sans-serif] tracking-tight text-center">Current Team Streaks</h2>
       {loading ? (
         <div className="text-lg text-gray-500 animate-pulse">Loading streaks...</div>
       ) : error ? (
@@ -58,10 +61,10 @@ export default function TeamStreaks() {
               className={`flex-1 bg-gradient-to-br ${CARD_GRADIENTS[i]} rounded-2xl shadow-2xl p-8 flex flex-col items-center transition-transform duration-200 hover:scale-105 group relative min-w-[260px] max-w-[350px]`}
               style={{ minHeight: '24rem' }}
             >
-              <div className="absolute top-4 right-4 z-10">{CARD_ICONS[i]}</div>
               <div className="text-4xl md:text-5xl font-extrabold text-white mb-4 flex items-center gap-2 font-[Montserrat,Arial,sans-serif] drop-shadow-lg">
-                <span className="inline-block animate-pulse-glow">🔥</span>
-                {streak.streak} WINS
+                {CARD_ICONS[i][0]}
+                <span>{streak.streak} WINS</span>
+                {CARD_ICONS[i][1]}
               </div>
               <div className="flex gap-6 mb-4">
                 {streak.players.map((player: any, idx: number) => (
