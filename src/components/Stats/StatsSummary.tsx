@@ -33,6 +33,7 @@ const StatsSummary = () => {
     wins: number,
     losses: number,
     points: number,
+    pointsAgainst: number,
   }> = {}
 
   todaysMatches.forEach((match: any) => {
@@ -46,18 +47,20 @@ const StatsSummary = () => {
     // Team 1
     team1.forEach((player: any) => {
       if (!player) return
-      if (!playerStats[player.id]) playerStats[player.id] = { player, games: 0, wins: 0, losses: 0, points: 0 }
+      if (!playerStats[player.id]) playerStats[player.id] = { player, games: 0, wins: 0, losses: 0, points: 0, pointsAgainst: 0 }
       playerStats[player.id].games++
       playerStats[player.id].points += team1Score
+      playerStats[player.id].pointsAgainst += team2Score
       if (winningTeam === 1) playerStats[player.id].wins++
       else playerStats[player.id].losses++
     })
     // Team 2
     team2.forEach((player: any) => {
       if (!player) return
-      if (!playerStats[player.id]) playerStats[player.id] = { player, games: 0, wins: 0, losses: 0, points: 0 }
+      if (!playerStats[player.id]) playerStats[player.id] = { player, games: 0, wins: 0, losses: 0, points: 0, pointsAgainst: 0 }
       playerStats[player.id].games++
       playerStats[player.id].points += team2Score
+      playerStats[player.id].pointsAgainst += team1Score
       if (winningTeam === 2) playerStats[player.id].wins++
       else playerStats[player.id].losses++
     })
@@ -68,6 +71,7 @@ const StatsSummary = () => {
   const mostWins = Object.values(playerStats).sort((a, b) => b.wins - a.wins)[0]
   const mostLosses = Object.values(playerStats).sort((a, b) => b.losses - a.losses)[0]
   const mostPoints = Object.values(playerStats).sort((a, b) => b.points - a.points)[0]
+  const mostPointsAgainst = Object.values(playerStats).sort((a, b) => b.pointsAgainst - a.pointsAgainst)[0]
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
@@ -113,6 +117,15 @@ const StatsSummary = () => {
               <div className="flex items-center gap-2">
                 <PlayerLink player={mostPoints.player} />
                 <span className="font-bold">{mostPoints.points}</span>
+              </div>
+            </div>
+          )}
+          {mostPointsAgainst && (
+            <div className="mt-2">
+              <p className="text-gray-600 text-sm">Most Points Against</p>
+              <div className="flex items-center gap-2">
+                <PlayerLink player={mostPointsAgainst.player} />
+                <span className="font-bold">{mostPointsAgainst.pointsAgainst}</span>
               </div>
             </div>
           )}
