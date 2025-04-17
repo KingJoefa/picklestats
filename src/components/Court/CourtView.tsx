@@ -171,7 +171,7 @@ const CourtView = () => {
       </div>
 
       {/* Court Visualization */}
-      <div className="w-full max-w-4xl rounded-lg shadow-2xl p-8 border-4 border-white/30 backdrop-blur-sm relative overflow-hidden" style={{ background: 'transparent' }}>
+      <div className="w-full max-w-4xl rounded-2xl shadow-2xl p-8 border-2 border-white/40 backdrop-blur-sm relative overflow-hidden" style={{ background: '#008060' }}>
         <div className="relative aspect-[2/1]">
           <svg
             viewBox="0 0 1000 500"
@@ -288,7 +288,7 @@ const CourtView = () => {
       <Button
         onClick={handleSubmit}
         disabled={isSubmitting}
-        className="bg-gradient-to-r from-pink-500 via-teal-400 to-purple-500 hover:from-pink-600 hover:via-teal-500 hover:to-purple-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200 border-2 border-white/30 backdrop-blur-sm"
+        className="bg-gradient-to-r from-pink-500 to-cyan-400 hover:from-pink-600 hover:to-cyan-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200 border-2 border-white/30 backdrop-blur-sm"
       >
         {isSubmitting ? 'Submitting...' : 'Submit Match'}
       </Button>
