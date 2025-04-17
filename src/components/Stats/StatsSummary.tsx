@@ -26,6 +26,49 @@ const StatsSummary = () => {
     )
   })
 
+  // --- Calculate player stats for today ---
+  const playerStats: Record<string, {
+    player: any,
+    games: number,
+    wins: number,
+    losses: number,
+    points: number,
+  }> = {}
+
+  todaysMatches.forEach((match: any) => {
+    // Get players for both teams
+    const team1 = [(match as any)["team1PlayerA"] ?? (match.team1 && match.team1[0]), (match as any)["team1PlayerB"] ?? (match.team1 && match.team1[1])]
+    const team2 = [(match as any)["team2PlayerA"] ?? (match.team2 && match.team2[0]), (match as any)["team2PlayerB"] ?? (match.team2 && match.team2[1])]
+    const team1Score = (match as any)["team1ScoreA"] !== undefined ? (match as any)["team1ScoreA"] : (match.score?.team1 ?? 0)
+    const team2Score = (match as any)["team2ScoreA"] !== undefined ? (match as any)["team2ScoreA"] : (match.score?.team2 ?? 0)
+    const winningTeam = (match as any)["winningTeam"] ?? (team1Score > team2Score ? 1 : 2)
+
+    // Team 1
+    team1.forEach((player: any) => {
+      if (!player) return
+      if (!playerStats[player.id]) playerStats[player.id] = { player, games: 0, wins: 0, losses: 0, points: 0 }
+      playerStats[player.id].games++
+      playerStats[player.id].points += team1Score
+      if (winningTeam === 1) playerStats[player.id].wins++
+      else playerStats[player.id].losses++
+    })
+    // Team 2
+    team2.forEach((player: any) => {
+      if (!player) return
+      if (!playerStats[player.id]) playerStats[player.id] = { player, games: 0, wins: 0, losses: 0, points: 0 }
+      playerStats[player.id].games++
+      playerStats[player.id].points += team2Score
+      if (winningTeam === 2) playerStats[player.id].wins++
+      else playerStats[player.id].losses++
+    })
+  })
+
+  // Find top players for each stat
+  const mostGames = Object.values(playerStats).sort((a, b) => b.games - a.games)[0]
+  const mostWins = Object.values(playerStats).sort((a, b) => b.wins - a.wins)[0]
+  const mostLosses = Object.values(playerStats).sort((a, b) => b.losses - a.losses)[0]
+  const mostPoints = Object.values(playerStats).sort((a, b) => b.points - a.points)[0]
+
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
       <h2 className="text-2xl font-bold mb-6">Session Stats</h2>
@@ -37,6 +80,42 @@ const StatsSummary = () => {
             <p className="text-gray-600">Matches Played</p>
             <p className="text-2xl font-bold">{todaysMatches.length}</p>
           </div>
+          {mostGames && (
+            <div className="mt-4">
+              <p className="text-gray-600 text-sm">Most Games Played</p>
+              <div className="flex items-center gap-2">
+                <PlayerLink player={mostGames.player} />
+                <span className="font-bold">{mostGames.games}</span>
+              </div>
+            </div>
+          )}
+          {mostWins && (
+            <div className="mt-2">
+              <p className="text-gray-600 text-sm">Most Wins Today</p>
+              <div className="flex items-center gap-2">
+                <PlayerLink player={mostWins.player} />
+                <span className="font-bold">{mostWins.wins}</span>
+              </div>
+            </div>
+          )}
+          {mostLosses && (
+            <div className="mt-2">
+              <p className="text-gray-600 text-sm">Most Losses Today</p>
+              <div className="flex items-center gap-2">
+                <PlayerLink player={mostLosses.player} />
+                <span className="font-bold">{mostLosses.losses}</span>
+              </div>
+            </div>
+          )}
+          {mostPoints && (
+            <div className="mt-2">
+              <p className="text-gray-600 text-sm">Most Points Scored</p>
+              <div className="flex items-center gap-2">
+                <PlayerLink player={mostPoints.player} />
+                <span className="font-bold">{mostPoints.points}</span>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="bg-gray-50 rounded-lg p-4 md:col-span-2">
