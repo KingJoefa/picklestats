@@ -146,7 +146,7 @@ const CourtView = () => {
   }
 
   return (
-    <div className="flex flex-col items-center gap-6 p-4 bg-gradient-to-br from-pink-500 via-teal-400 to-purple-500 rounded-lg">
+    <div className="flex flex-col items-center gap-6 p-4 bg-gradient-to-br from-pink-500 to-cyan-400 rounded-lg">
       <div className="flex flex-col md:flex-row gap-8 w-full max-w-4xl">
         <div className="flex-1">
           <h2 className="text-xl font-bold mb-4 text-white drop-shadow-lg">Team 1</h2>
@@ -171,7 +171,7 @@ const CourtView = () => {
       </div>
 
       {/* Court Visualization */}
-      <div className="w-full max-w-4xl bg-gradient-to-b from-teal-600 to-teal-800 rounded-lg shadow-2xl p-8 border-4 border-white/30 backdrop-blur-sm relative overflow-hidden">
+      <div className="w-full max-w-4xl rounded-lg shadow-2xl p-8 border-4 border-white/30 backdrop-blur-sm relative overflow-hidden" style={{ background: 'transparent' }}>
         <div className="relative aspect-[2/1]">
           <svg
             viewBox="0 0 1000 500"
@@ -186,8 +186,8 @@ const CourtView = () => {
               height="363"
               stroke="white"
               strokeWidth="4"
-              fill="none"
-              opacity="0.9"
+              fill="#008060"
+              opacity="0.97"
             />
             
             {/* Net Visualization */}
