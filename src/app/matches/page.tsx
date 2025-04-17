@@ -210,25 +210,27 @@ export default function MatchesPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Match History</h1>
-        <div className="w-64">
-          <select
-            value={selectedPlayerId}
-            onChange={(e) => setSelectedPlayerId(e.target.value)}
-            className="w-full p-2 border rounded-md bg-white"
-          >
-            <option value="">All Players</option>
-            {availablePlayers.map((player) => (
-              <option key={player.id} value={player.id}>
-                {player.name}
-              </option>
-            ))}
-          </select>
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-cyan-100 to-blue-200 py-12 px-2 md:px-4 flex justify-center items-start">
+      <div className="max-w-6xl w-full mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Match History</h1>
+          <div className="w-64">
+            <select
+              value={selectedPlayerId}
+              onChange={(e) => setSelectedPlayerId(e.target.value)}
+              className="w-full p-2 border rounded-md bg-white"
+            >
+              <option value="">All Players</option>
+              {availablePlayers.map((player) => (
+                <option key={player.id} value={player.id}>
+                  {player.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
+        {renderContent()}
       </div>
-      {renderContent()}
     </div>
   )
 } 
