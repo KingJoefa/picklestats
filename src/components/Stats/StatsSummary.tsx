@@ -72,6 +72,11 @@ const StatsSummary = () => {
   const mostLosses = Object.values(playerStats).sort((a, b) => b.losses - a.losses)[0]
   const mostPoints = Object.values(playerStats).sort((a, b) => b.points - a.points)[0]
   const mostPointsAgainst = Object.values(playerStats).sort((a, b) => b.pointsAgainst - a.pointsAgainst)[0]
+  // Best win percentage (min 1 game played)
+  const bestWinPct = Object.values(playerStats)
+    .filter(s => s.games > 0)
+    .map(s => ({ ...s, winPct: s.games > 0 ? (s.wins / s.games) * 100 : 0 }))
+    .sort((a, b) => b.winPct - a.winPct)[0]
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
@@ -126,6 +131,15 @@ const StatsSummary = () => {
               <div className="flex items-center gap-2">
                 <PlayerLink player={mostPointsAgainst.player} />
                 <span className="font-bold">{mostPointsAgainst.pointsAgainst}</span>
+              </div>
+            </div>
+          )}
+          {bestWinPct && (
+            <div className="mt-2">
+              <p className="text-gray-600 text-sm">Best Win Percentage</p>
+              <div className="flex items-center gap-2">
+                <PlayerLink player={bestWinPct.player} />
+                <span className="font-bold">{bestWinPct.winPct.toFixed(0)}%</span>
               </div>
             </div>
           )}
