@@ -20,56 +20,63 @@ export async function GET() {
     },
   })
 
-  // 2. Build streaks for each unique team
+  // 2. Build streaks for each unique team (only count consecutive wins until first loss)
   const streaks: Record<string, {
     players: [any, any],
     streak: number,
     lastWinDate: Date,
+    active: boolean,
   }> = {}
 
   for (const match of matches) {
     // Team 1
     const team1Key = getTeamKey(match.team1PlayerAId, match.team1PlayerBId)
     const team1Won = match.winningTeam === 1
-    if (!streaks[team1Key]) {
+    if (!(team1Key in streaks)) {
       streaks[team1Key] = {
         players: [match.team1PlayerA, match.team1PlayerB],
         streak: 0,
         lastWinDate: match.date,
+        active: true,
       }
     }
-    if (team1Won) {
-      if (streaks[team1Key].streak === 0) {
-        streaks[team1Key].lastWinDate = match.date
+    if (streaks[team1Key].active) {
+      if (team1Won) {
+        if (streaks[team1Key].streak === 0) {
+          streaks[team1Key].lastWinDate = match.date
+        }
+        streaks[team1Key].streak++
+      } else {
+        streaks[team1Key].active = false // streak broken
       }
-      streaks[team1Key].streak++
-    } else {
-      streaks[team1Key].streak = 0
     }
 
     // Team 2
     const team2Key = getTeamKey(match.team2PlayerAId, match.team2PlayerBId)
     const team2Won = match.winningTeam === 2
-    if (!streaks[team2Key]) {
+    if (!(team2Key in streaks)) {
       streaks[team2Key] = {
         players: [match.team2PlayerA, match.team2PlayerB],
         streak: 0,
         lastWinDate: match.date,
+        active: true,
       }
     }
-    if (team2Won) {
-      if (streaks[team2Key].streak === 0) {
-        streaks[team2Key].lastWinDate = match.date
+    if (streaks[team2Key].active) {
+      if (team2Won) {
+        if (streaks[team2Key].streak === 0) {
+          streaks[team2Key].lastWinDate = match.date
+        }
+        streaks[team2Key].streak++
+      } else {
+        streaks[team2Key].active = false // streak broken
       }
-      streaks[team2Key].streak++
-    } else {
-      streaks[team2Key].streak = 0
     }
   }
 
-  // 3. Get top 3 current streaks (streak > 0)
+  // 3. Get top 3 current streaks (active streak > 0)
   const topStreaks = Object.values(streaks)
-    .filter(s => s.streak > 0)
+    .filter(s => s.active && s.streak > 0)
     .sort((a, b) => b.streak - a.streak || b.lastWinDate.getTime() - a.lastWinDate.getTime())
     .slice(0, 3)
 
