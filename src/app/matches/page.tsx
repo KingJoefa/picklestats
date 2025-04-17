@@ -50,8 +50,8 @@ export default function MatchesPage() {
     setPlayerNotFound(false)
     
     try {
-      const url = selectedPlayerId 
-        ? `${API_PATHS.PLAYERS_V1}/${selectedPlayerId}`
+      const url = selectedPlayerId
+        ? `${API_PATHS.MATCHES_V1}?playerId=${selectedPlayerId}`
         : API_PATHS.MATCHES_V1
       const response = await fetch(url)
       
@@ -67,34 +67,11 @@ export default function MatchesPage() {
       
       const responseData = await response.json()
       
-      // If we're fetching player-specific matches, we need to transform the data
-      if (selectedPlayerId) {
-        if (!responseData.recentMatches || !Array.isArray(responseData.recentMatches)) {
-          setMatches([])
-          return
-        }
-        
-        const transformedMatches = responseData.recentMatches.map((match: any) => ({
-          id: match.id,
-          date: match.date,
-          team1PlayerA: match.team1PlayerA,
-          team1PlayerB: match.team1PlayerB,
-          team2PlayerA: match.team2PlayerA,
-          team2PlayerB: match.team2PlayerB,
-          team1ScoreA: match.team1ScoreA,
-          team1ScoreB: match.team1ScoreB,
-          team2ScoreA: match.team2ScoreA,
-          team2ScoreB: match.team2ScoreB,
-          winningTeam: match.winningTeam
-        }))
-        setMatches(transformedMatches)
-      } else {
-        const { data } = responseData
-        if (!Array.isArray(data)) {
-          throw new Error('Invalid match data received')
-        }
-        setMatches(data)
+      const { data } = responseData
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid match data received')
       }
+      setMatches(data)
     } catch (error) {
       console.error('Error fetching matches:', error)
       setError('Failed to load matches. Please try again later.')
