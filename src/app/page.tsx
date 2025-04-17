@@ -2,7 +2,6 @@
 
 import CourtView from '@/components/Court/CourtView'
 import StatsSummary from '@/components/Stats/StatsSummary'
-import PlayerStatsView from '@/components/Stats/PlayerStatsView'
 import PlayerDebug from '@/components/PlayerDebug'
 import Logo from '@/components/Logo/Logo'
 
@@ -16,11 +15,6 @@ export default function Home() {
         <div className="bg-white rounded-xl shadow-lg p-6">
           <h2 className="text-2xl font-bold mb-6">Score Entry</h2>
           <CourtView />
-        </div>
-
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-2xl font-bold mb-6">Player Comparison</h2>
-          <PlayerStatsView />
         </div>
 
         <div className="bg-white rounded-xl shadow-lg p-6">
