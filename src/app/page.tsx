@@ -21,8 +21,6 @@ export default function Home() {
           <h2 className="text-2xl font-bold mb-6">Session Stats</h2>
           <StatsSummary />
         </div>
-        
-        <PlayerDebug />
       </div>
     </div>
   )
