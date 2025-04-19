@@ -71,6 +71,7 @@ export default function MatchesPage() {
       if (!Array.isArray(data)) {
         throw new Error('Invalid match data received')
       }
+      console.log('Frontend received matches:', { selectedPlayerId, count: data.length, matchIds: data.map((m: any) => m.id) })
       setMatches(data)
     } catch (error) {
       console.error('Error fetching matches:', error)

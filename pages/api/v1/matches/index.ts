@@ -64,7 +64,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // GET endpoint to fetch matches
   if (req.method === 'GET') {
     try {
+      const { playerId } = req.query;
+      let where = {};
+      if (playerId && typeof playerId === 'string') {
+        where = {
+          OR: [
+            { team1PlayerAId: playerId },
+            { team1PlayerBId: playerId },
+            { team2PlayerAId: playerId },
+            { team2PlayerBId: playerId },
+          ]
+        };
+      }
       const matches = await prisma.match.findMany({
+        where,
         include: {
           team1PlayerA: true,
           team1PlayerB: true,
@@ -76,6 +89,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
         take: 10
       })
+      
+      console.log('API matches result:', { playerId, count: matches.length, matchIds: matches.map(m => m.id) })
       
       await prisma.$disconnect()
       
