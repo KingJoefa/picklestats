@@ -1,6 +1,17 @@
-# PickleStats 🏓
+# PickleStats 🏓 ![Version](https://img.shields.io/badge/version-v1.0.0-blueviolet)
+
+**Official Launch: v1.0.0**
+
+> This is the first public release of PickleStats! For a fresh start, clear your matches using the provided script before going live. See the [Releases](https://github.com/KingJoefa/picklestats/releases) page for details.
 
 A modern web application for tracking pickleball matches and player statistics, featuring a Miami Vice-inspired design theme.
+
+## Launching Your Own Instance
+
+1. [Download the latest release](https://github.com/KingJoefa/picklestats/releases) or clone the repo.
+2. Install dependencies and set up your database (see below).
+3. (Optional) Run `npx ts-node prisma/clear-matches.ts` to start with a blank match history.
+4. Deploy to Vercel or your preferred platform.
 
 ## Features
 
