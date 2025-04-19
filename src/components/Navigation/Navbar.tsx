@@ -18,7 +18,7 @@ const Navbar = () => {
           <Link href="/" className="mr-8">
             <Logo variant="nav" />
           </Link>
-          <div className="flex space-x-4">
+          <div className="flex space-x-4 overflow-x-auto whitespace-nowrap">
             <Link
               href="/"
               className={`px-4 py-2 rounded-md ${isActive('/')}`}
