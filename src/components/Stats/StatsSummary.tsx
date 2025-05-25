@@ -153,7 +153,7 @@ const StatsSummary = () => {
                 No matches played yet
               </p>
             ) : (
-              todaysMatches.slice(-3).reverse().map((match) => {
+              todaysMatches.slice(0, 3).map((match) => {
                 // Support both DB and local match shapes
                 const team1A = (match as any)["team1PlayerA"] ?? (match.team1 && match.team1[0]) ?? null;
                 const team1B = (match as any)["team1PlayerB"] ?? (match.team1 && match.team1[1]) ?? null;
