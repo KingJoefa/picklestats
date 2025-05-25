@@ -174,4 +174,57 @@ export async function GET() {
     
     return NextResponse.json({ error: errorMessage }, { status: statusCode })
   }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { name } = await request.json();
+    if (!name) {
+      return NextResponse.json({ error: 'Player name is required' }, { status: 400 });
+    }
+
+    const player = await prisma.player.findFirst({
+      where: { name }
+    });
+
+    if (!player) {
+      return NextResponse.json({ error: 'Player not found' }, { status: 404 });
+    }
+
+    await prisma.player.delete({
+      where: { id: player.id }
+    });
+
+    return NextResponse.json({ message: 'Player removed successfully' });
+  } catch (error) {
+    console.error('Error removing player:', error instanceof Error ? error.message : String(error));
+    return NextResponse.json({ error: 'Failed to remove player' }, { status: 500 });
+  }
+}
+
+export async function archivePlayer(request: Request) {
+  try {
+    const { name } = await request.json();
+    if (!name) {
+      return NextResponse.json({ error: 'Player name is required' }, { status: 400 });
+    }
+
+    const player = await prisma.player.findFirst({
+      where: { name }
+    });
+
+    if (!player) {
+      return NextResponse.json({ error: 'Player not found' }, { status: 404 });
+    }
+
+    await prisma.player.update({
+      where: { id: player.id },
+      data: { isArchived: true }
+    });
+
+    return NextResponse.json({ message: 'Player archived successfully' });
+  } catch (error) {
+    console.error('Error archiving player:', error instanceof Error ? error.message : String(error));
+    return NextResponse.json({ error: 'Failed to archive player' }, { status: 500 });
+  }
 } 

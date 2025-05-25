@@ -9,6 +9,7 @@ interface Player {
   id: string
   name: string
   profilePicture: string
+  isArchived?: boolean
 }
 
 export default function ManagePlayers() {
@@ -90,6 +91,25 @@ export default function ManagePlayers() {
     }
   }
 
+  const handleArchivePlayer = async (name: string) => {
+    if (!window.confirm(`Are you sure you want to archive ${name}?`)) return;
+    try {
+      const response = await fetch('/api/players', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      if (response.ok) {
+        fetchPlayers();
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Failed to archive player');
+      }
+    } catch (error) {
+      alert('Failed to archive player');
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">Manage Players</h1>
@@ -129,7 +149,7 @@ export default function ManagePlayers() {
 
       {/* Existing Players List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {players.map((player) => (
+        {players.filter(p => !p.isArchived).map((player) => (
           <div key={player.id} className="bg-white p-4 rounded-lg shadow-md">
             <div className="relative w-32 h-32 mx-auto mb-4">
               <Image
@@ -174,9 +194,15 @@ export default function ManagePlayers() {
                 <h3 className="font-semibold text-lg mb-2">{player.name}</h3>
                 <button
                   onClick={() => setEditingPlayer(player)}
-                  className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600"
+                  className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 mr-2"
                 >
                   Edit
+                </button>
+                <button
+                  onClick={() => handleArchivePlayer(player.name)}
+                  className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600"
+                >
+                  Archive
                 </button>
               </div>
             )}
