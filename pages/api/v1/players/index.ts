@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
 
 interface FormattedPlayer {
   id: string;
@@ -28,18 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === 'GET') {
     try {
       console.log('Connecting to database with Prisma...')
-      
-      // Create Prisma client with more explicit error logging
-      const prisma = new PrismaClient({
-        datasources: {
-          db: {
-            url: process.env.DATABASE_URL + '?sslmode=require'
-          }
-        },
-        log: ['query', 'info', 'warn', 'error'],
-      })
-
-      console.log('Prisma client created successfully')
+      console.log('Using shared Prisma client')
       
       try {
         console.log('Fetching players from database using Pages Router API...')
@@ -48,8 +37,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             stats: true
           }
         })) as unknown as PlayerWithArchived[]
-        
-        await prisma.$disconnect()
         
         if (!players || players.length === 0) {
           console.log('No players found in database.')
@@ -140,8 +127,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           data: activePlayers 
         })
       } catch (dbError) {
-        // Make sure to disconnect on error
-        await prisma.$disconnect().catch(() => {}) // Silence disconnect errors
         throw dbError // Re-throw for handling below
       }
     } catch (error) {

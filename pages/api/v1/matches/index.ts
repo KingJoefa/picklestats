@@ -1,14 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const prisma = new PrismaClient({
-    datasources: {
-      db: {
-        url: process.env.DATABASE_URL + '?sslmode=require'
-      }
-    }
-  })
   
   async function updatePlayerStats(
     team1Players: string[], 
@@ -92,15 +85,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       
       console.log('API matches result:', { playerId, count: matches.length, matchIds: matches.map(m => m.id) })
       
-      await prisma.$disconnect()
-      
       return res.status(200).json({ 
         success: true,
         data: matches 
       })
     } catch (error) {
       console.error('Error fetching matches:', error)
-      await prisma.$disconnect()
       
       return res.status(500).json({ 
         success: false, 
@@ -126,7 +116,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       
       // Validate required fields
       if (!team1PlayerAId || !team1PlayerBId || !team2PlayerAId || !team2PlayerBId) {
-        await prisma.$disconnect()
         return res.status(400).json({ 
           success: false, 
           error: 'All player IDs are required' 
@@ -163,15 +152,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         { team1: team1ScoreA + team1ScoreB, team2: team2ScoreA + team2ScoreB }
       )
       
-      await prisma.$disconnect()
-      
       return res.status(201).json({ 
         success: true,
         match 
       })
     } catch (error) {
       console.error('Error creating match:', error)
-      await prisma.$disconnect()
       
       return res.status(500).json({ 
         success: false, 
@@ -180,7 +166,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     }
   } else {
-    await prisma.$disconnect()
     res.setHeader('Allow', ['GET', 'POST'])
     res.status(405).end(`Method ${req.method} Not Allowed`)
   }
