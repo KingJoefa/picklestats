@@ -4,6 +4,14 @@
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 
+interface PlayerWithArchived {
+  id: string;
+  name: string;
+  profilePicture: string;
+  isArchived: boolean;
+  stats: any;
+}
+
 // export const { runtime, dynamic } = apiConfig
 
 /*
@@ -67,18 +75,11 @@ export const dynamic = 'force-dynamic'
 export async function GET() {
   try {
     console.log('Fetching players from database...')
-    const players = await prisma.player.findMany({
-      select: {
-        id: true,
-        name: true,
-        profilePicture: true,
-        isArchived: true,
+    const players = (await prisma.player.findMany({
+      include: {
         stats: true
       }
-    }).catch(err => {
-      console.error('Prisma error in players/route.ts:', err)
-      throw new Error(`Database error: ${err.message || 'Unknown error'}`)
-    })
+    })) as unknown as PlayerWithArchived[]
     
     if (!players || players.length === 0) {
       console.log('No players found in database.')
@@ -87,7 +88,7 @@ export async function GET() {
         message: 'No players found in database. Try running the seed script.'
       })
     }
-    
+
     // For each player, fetch ALL matches and aggregate stats
     const playerIds = players.map(p => p.id)
     const matchesByPlayer: { [key: string]: any[] } = {};
@@ -150,19 +151,18 @@ export async function GET() {
       }
     });
 
+    // Filter out archived players
+    const activePlayers = formattedPlayers.filter(player => !player.isArchived);
+
     // Sort players: first by games played (descending), then alphabetically by name
-    formattedPlayers.sort((a, b) => {
+    activePlayers.sort((a, b) => {
       if (b.stats.matches !== a.stats.matches) {
         return b.stats.matches - a.stats.matches;
       }
       return a.name.localeCompare(b.name);
     });
 
-    // Split into top 10 and the rest
-    const top10Players = formattedPlayers.slice(0, 10);
-    const restPlayers = formattedPlayers.slice(10);
-
-    return NextResponse.json({ data: [...top10Players, ...restPlayers] });
+    return NextResponse.json({ data: activePlayers });
   } catch (error) {
     console.error('Error fetching players:', error instanceof Error ? error.message : String(error))
     
@@ -224,7 +224,7 @@ export async function archivePlayer(request: Request) {
 
     await prisma.player.update({
       where: { id: player.id },
-      data: { isArchived: true }
+      data: { isArchived: true } as any
     });
 
     return NextResponse.json({ message: 'Player archived successfully' });
