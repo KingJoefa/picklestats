@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { prisma } from '@/lib/prisma'
+import { PrismaClient } from '@prisma/client'
 
 interface FormattedPlayer {
   id: string;
@@ -25,10 +25,19 @@ interface PlayerWithArchived {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const prisma = new PrismaClient({
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL + '?sslmode=require'
+      }
+    },
+    log: ['query', 'info', 'warn', 'error'],
+  })
+
   if (req.method === 'GET') {
     try {
       console.log('Connecting to database with Prisma...')
-      console.log('Using shared Prisma client')
+      console.log('Using individual Prisma client')
       
       try {
         console.log('Fetching players from database using Pages Router API...')
@@ -122,15 +131,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           return a.name.localeCompare(b.name);
         });
         
+        await prisma.$disconnect()
+        
         return res.status(200).json({ 
           success: true,
           data: activePlayers 
         })
       } catch (dbError) {
+        await prisma.$disconnect().catch(() => {})
         throw dbError // Re-throw for handling below
       }
     } catch (error) {
       console.error('Error in players API:', error)
+      await prisma.$disconnect().catch(() => {})
       return res.status(500).json({ 
         success: false, 
         error: 'Failed to fetch players',
@@ -163,18 +176,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           where: { id: player.id },
           data: { isArchived: true } as any
         });
+        await prisma.$disconnect()
         return res.status(200).json({ 
           success: true, 
           message: 'Player archived successfully' 
         });
       }
 
+      await prisma.$disconnect()
       return res.status(400).json({ 
         success: false, 
         error: 'Invalid action' 
       });
     } catch (error) {
       console.error('Error updating player:', error);
+      await prisma.$disconnect().catch(() => {})
       return res.status(500).json({ 
         success: false, 
         error: 'Failed to update player',
