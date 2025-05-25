@@ -155,7 +155,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       
       const { data } = await response.json()
       if (Array.isArray(data)) {
-        set({ availablePlayers: data })
+        const activePlayers = data.filter(player => !player.isArchived)
+        set({ availablePlayers: activePlayers })
         toast.success('Players loaded', { id: 'loading-players' })
       } else {
         console.error('Invalid players data format:', data)
