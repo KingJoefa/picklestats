@@ -207,9 +207,9 @@ export async function DELETE(request: Request) {
   }
 }
 
-export async function archivePlayer(request: Request) {
+export async function PATCH(request: Request) {
   try {
-    const { name } = await request.json();
+    const { name, action } = await request.json();
     if (!name) {
       return NextResponse.json({ error: 'Player name is required' }, { status: 400 });
     }
@@ -222,14 +222,17 @@ export async function archivePlayer(request: Request) {
       return NextResponse.json({ error: 'Player not found' }, { status: 404 });
     }
 
-    await prisma.player.update({
-      where: { id: player.id },
-      data: { isArchived: true } as any
-    });
+    if (action === 'archive') {
+      await prisma.player.update({
+        where: { id: player.id },
+        data: { isArchived: true } as any
+      });
+      return NextResponse.json({ message: 'Player archived successfully' });
+    }
 
-    return NextResponse.json({ message: 'Player archived successfully' });
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error) {
-    console.error('Error archiving player:', error instanceof Error ? error.message : String(error));
-    return NextResponse.json({ error: 'Failed to archive player' }, { status: 500 });
+    console.error('Error updating player:', error instanceof Error ? error.message : String(error));
+    return NextResponse.json({ error: 'Failed to update player' }, { status: 500 });
   }
 } 
