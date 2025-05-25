@@ -68,7 +68,11 @@ export async function GET() {
   try {
     console.log('Fetching players from database...')
     const players = await prisma.player.findMany({
-      include: {
+      select: {
+        id: true,
+        name: true,
+        profilePicture: true,
+        isArchived: true,
         stats: true
       }
     }).catch(err => {
@@ -134,6 +138,7 @@ export async function GET() {
         id: player.id,
         name: player.name,
         profilePicture: player.profilePicture,
+        isArchived: player.isArchived,
         stats: {
           matches: totalMatches,
           wins,
