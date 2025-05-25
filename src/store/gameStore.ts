@@ -122,7 +122,6 @@ export const useGameStore = create<GameState>((set, get) => ({
       
       return {
         matchHistory: [
-          ...state.matchHistory,
           {
             id: Date.now().toString(),
             date: new Date(),
@@ -130,6 +129,7 @@ export const useGameStore = create<GameState>((set, get) => ({
             team2: team2Players as [Player, Player],
             score: { ...state.score },
           },
+          ...state.matchHistory,
         ],
         score: { team1: 0, team2: 0 },
         players: {
@@ -142,7 +142,8 @@ export const useGameStore = create<GameState>((set, get) => ({
     try {
       toast.loading('Loading players...', { id: 'loading-players' })
       
-      const response = await fetch(API_PATHS.PLAYERS_V1)
+      const cacheBuster = Date.now()
+      const response = await fetch(`${API_PATHS.PLAYERS_V1}?_t=${cacheBuster}`)
       if (!response.ok) {
         const errorText = await response.text()
         console.error(`Failed to fetch players: ${response.status} - ${errorText}`)
