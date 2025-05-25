@@ -97,7 +97,7 @@ export default function ManagePlayers() {
       const response = await fetch('/api/players', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, action: 'archive' }),
       });
       if (response.ok) {
         fetchPlayers();
