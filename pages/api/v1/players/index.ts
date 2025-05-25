@@ -137,6 +137,50 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         details: error instanceof Error ? error.message : String(error)
       })
     }
+  } else if (req.method === 'PATCH') {
+    try {
+      const { name, action } = req.body;
+      if (!name) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Player name is required' 
+        });
+      }
+
+      const player = await prisma.player.findFirst({
+        where: { name }
+      });
+
+      if (!player) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Player not found' 
+        });
+      }
+
+      if (action === 'archive') {
+        await prisma.player.update({
+          where: { id: player.id },
+          data: { isArchived: true } as any
+        });
+        return res.status(200).json({ 
+          success: true, 
+          message: 'Player archived successfully' 
+        });
+      }
+
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Invalid action' 
+      });
+    } catch (error) {
+      console.error('Error updating player:', error);
+      return res.status(500).json({ 
+        success: false, 
+        error: 'Failed to update player',
+        details: error instanceof Error ? error.message : String(error)
+      });
+    }
   }
   
   return res.status(405).json({ success: false, message: 'Method not allowed' })

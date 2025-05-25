@@ -94,7 +94,7 @@ export default function ManagePlayers() {
   const handleArchivePlayer = async (name: string) => {
     if (!window.confirm(`Are you sure you want to archive ${name}?`)) return;
     try {
-      const response = await fetch('/api/players', {
+      const response = await fetch(API_PATHS.PLAYERS_V1, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, action: 'archive' }),
