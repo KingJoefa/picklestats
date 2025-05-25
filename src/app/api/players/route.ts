@@ -143,9 +143,21 @@ export async function GET() {
           pointsConceded
         }
       }
-    })
+    });
 
-    return NextResponse.json({ data: formattedPlayers })
+    // Sort players: first by games played (descending), then alphabetically by name
+    formattedPlayers.sort((a, b) => {
+      if (b.stats.matches !== a.stats.matches) {
+        return b.stats.matches - a.stats.matches;
+      }
+      return a.name.localeCompare(b.name);
+    });
+
+    // Split into top 10 and the rest
+    const top10Players = formattedPlayers.slice(0, 10);
+    const restPlayers = formattedPlayers.slice(10);
+
+    return NextResponse.json({ data: [...top10Players, ...restPlayers] });
   } catch (error) {
     console.error('Error fetching players:', error instanceof Error ? error.message : String(error))
     
