@@ -143,7 +143,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       toast.loading('Loading players...', { id: 'loading-players' })
       
       const cacheBuster = Date.now()
-      const response = await fetch(`${API_PATHS.PLAYERS_V1}?_t=${cacheBuster}`)
+      const response = await fetch(`${API_PATHS.PLAYERS}?_t=${cacheBuster}`)
       if (!response.ok) {
         const errorText = await response.text()
         console.error(`Failed to fetch players: ${response.status} - ${errorText}`)
